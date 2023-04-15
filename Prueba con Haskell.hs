@@ -70,8 +70,9 @@ lstMapped2 = mapi sumarle4 lstcnc
 --Para obtener los diez primeros cuadrados
 lstMapped3 = map (\x -> x*x) [1..10] --la barra se utiliza cuando no queremos nombrar la función => funciones anónimas
 
---Función filtro (ver pag 73 del texto base)
-
+--Listas por compresión (ver pag 75 del texto base)
+divisores n = [ d | d <- [1..n] , mod n d == 0 ]
+primos = [ p | p <- [2..100] , divisores p == [1,p] ] -- Se le indica limite del 2 al 100 para que el programa no se ejecute indefinidamente.
 
 
 
@@ -94,5 +95,6 @@ main = do
   putStrLn("14 - unzipi zplst: "                               ++ show (unzipi zplst))
   putStrLn("15 - map sumarle4 lstcnc: "                        ++ show (lstMapped))
   putStrLn("16 - mapi sumarle4 lstcnc: "                       ++ show (lstMapped2))
-  putStrLn("16 - map (\\x -> x*x) [1..10]: "                    ++ show (lstMapped3))
+  putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show (lstMapped3))
+  putStrLn("17 - primos: "                                     ++ show (primos)) -- Solo los primos entre 2 y 100
   
