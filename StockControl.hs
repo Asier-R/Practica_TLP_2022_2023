@@ -9,7 +9,7 @@ data Stock = ROOTNODE [Stock] | INNERNODE Char [Stock] | INFONODE Int
 
 -- FUNCIÓN QUE DEVUELVE UN STOCK VACÍO --
 createStock :: Stock
-
+createStock = ROOTNODE []
 
 ---------------------------
 -- FUNCIÓN RETRIEVESTOCK --
@@ -19,7 +19,15 @@ createStock :: Stock
 -- SI NO ESTÁ, DEBERÁ DEVOLVER -1                                        --
 
 retrieveStock :: Stock         -> String -> Int
-
+retrieveStock (INFONODE num) p 
+  | p == "" = num
+  | otherwise = -1
+retrieveStock (INNERNODE chr (s:stocks)) (p:ps)
+  | chr == p = retrieveStock s ps
+  | otherwise = -1
+retrieveStock (ROOTNODE l@(s:stocks)) p 
+  | l == [] = -1
+  | otherwise = retrieveStock s p
 
 -------------------------
 -- FUNCIÓN UPDATESTOCK --

@@ -75,6 +75,31 @@ divisores n = [ d | d <- [1..n] , mod n d == 0 ]
 primos = [ p | p <- [2..100] , divisores p == [1,p] ] -- Se le indica limite del 2 al 100 para que el programa no se ejecute indefinidamente.
 
 
+-- ****** PRUEBAS PARA LA REALIZACION DE LA PRACTICA ****** --
+--Pruebas sobre el tipo de datos Stock de la práctica
+data Stock = ROOTNODE [Stock] | INNERNODE Char [Stock] | INFONODE Int
+  deriving (Show,Read,Eq)
+
+createStock :: Stock
+createStock = ROOTNODE []
+
+--Un Stock concreto
+cosa = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
+
+--Funcion que devuelve el número de elementos de ese stock
+retrieveStock :: Stock -> String -> Int
+retrieveStock (INFONODE num) p 
+  | p == "" = num
+  | otherwise = -1
+retrieveStock (INNERNODE chr (s:stocks)) (p:ps)
+  | chr == p = retrieveStock s ps
+  | otherwise = -1
+retrieveStock (ROOTNODE l@(s:stocks)) p 
+  | l == [] = -1
+  | otherwise = retrieveStock s p
+
+
+-- ******************************************************** --
 
 --Programa principal
 main = do
@@ -85,6 +110,7 @@ main = do
   putStrLn("04 - fiboList 15: "                                ++ show (fiboList 15))
   putStrLn("05 - sumar2 [1,2,3]: "                             ++ show (sumar2 [1,2,3]))
   putStrLn("06 - duplicaCabeza1 [2,3]: "                       ++ show (duplicaCabeza1 [2,3]))
+  putStrLn("06 - duplicaCabeza1 texto: "                       ++ show (duplicaCabeza1 "texto"))
   putStrLn("07 - duplicaCabeza2 [1,3]: "                       ++ show (duplicaCabeza2 [1,3]))
   putStrLn("08 - dividir 5 2: "                                ++ show (dividir 5 2))
   putStrLn("09 - sumar3 5 2: "                                 ++ show (sumar3 5 2))
@@ -98,3 +124,6 @@ main = do
   putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show (lstMapped3))
   putStrLn("17 - primos: "                                     ++ show (primos)) -- Solo los primos entre 2 y 100
   
+  putStrLn("99: retrieveStock prueba existe    OK = "                   ++ show ( retrieveStock cosa "cosa"))
+  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStock cosa "acosa"))
+  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStock cosa "cosaaaaa"))
