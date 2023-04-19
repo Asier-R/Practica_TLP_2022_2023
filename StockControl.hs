@@ -37,6 +37,20 @@ retrieveStock (ROOTNODE l@(s:stocks)) p
 -- SÓLO PUEDE ALMACENAR NÚMEROS MAYORES O IGUALES A 0               --
 
 updateStock :: Stock         -> String -> Int -> Stock
+updateStock (INFONODE num) p u
+  | u >= 0 = (INFONODE u)
+updateStock (INNERNODE chr (s:stocks)) (p:ps) u
+  | s == [] = updateStock s p u --COMPROBAR SI ES NECESARIO CREAR UN INFONODE O UN INNERNODE
+  | otherwise = updateStock s p u
+updateStock (ROOTNODE l@(s:stocks)) (p:ps) u
+  | l == [] = updateStock (INNERNODE p s) ps u
+  | otherwise = updateStock s p u
+updateStock s p u 
+  | retrieveStock s p == -1 = createStock
+  | s == ROOTNODE = 
+  | otherwise = 
+updateStock s p u
+  | p /= "" = createStock
 
 
 -----------------------
