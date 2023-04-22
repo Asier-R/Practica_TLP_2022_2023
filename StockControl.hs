@@ -37,21 +37,19 @@ retrieveStock (ROOTNODE l@(s:stocks)) p
 -- SÓLO PUEDE ALMACENAR NÚMEROS MAYORES O IGUALES A 0               --
 
 updateStock :: Stock         -> String -> Int -> Stock
-updateStock (INFONODE num) p u
-  | u >= 0 = (INFONODE u)
-updateStock (INNERNODE chr (s:stocks)) (p:ps) u
-  | s == [] = updateStock s p u --COMPROBAR SI ES NECESARIO CREAR UN INFONODE O UN INNERNODE
-  | otherwise = updateStock s p u
-updateStock (ROOTNODE l@(s:stocks)) (p:ps) u
-  | l == [] = updateStock (INNERNODE p s) ps u
-  | otherwise = updateStock s p u
 updateStock s p u 
-  | retrieveStock s p == -1 = createStock
-  | s == ROOTNODE = 
-  | otherwise = 
-updateStock s p u
-  | p /= "" = createStock
-
+  | s == ROOTNODE [] = crear s p u (ROOTNODE [])
+  | otherwise        = actualizar s p u (ROOTNODE [])
+  where 
+    crear s (p:ps) u stock 
+      | s == (ROOTNODE []) = crear (INNERNODE p []) ps u (ROOTNODE[INNERNODE p []])
+      
+   
+crear :: Stock -> String -> Int -> Stock -> Stock
+crear s l@(p:ps) u stock 
+      | s == (ROOTNODE []) = crear (INNERNODE p []) ps u (ROOTNODE[])
+      | (s == (INNERNODE p []) && l /= "") = crear (INNERNODE p []) ps u (INNERNODE p []) 
+      | (s == (INNERNODE p []) && l /= "") = (INNERNODE p [crear (INNERNODE p []) ps u (INNERNODE p []) ])
 
 -----------------------
 -- FUNCIÓN LISTSTOCK --
@@ -59,7 +57,7 @@ updateStock s p u
 
 -- FUNCIÓN QUE DEVUELVE UNA LISTA PARES PRODUCTO-EXISTENCIA --
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
-listStock :: Stock -> String -> [(String,Int)]
+--listStock :: Stock -> String -> [(String,Int)]
 
 
 -- FUNCIÓN GENÉRICA DE BACKTRACKING --
