@@ -75,6 +75,36 @@ divisores n = [ d | d <- [1..n] , mod n d == 0 ]
 primos = [ p | p <- [2..100] , divisores p == [1,p] ] -- Se le indica limite del 2 al 100 para que el programa no se ejecute indefinidamente.
 
 
+--Ejercicios de autoevaluación
+polidivisible n 
+    | n <= 0 = False
+    | otherwise = ipolidivisible n (long n)
+    where
+        ipolidivisible _ 1 = True
+        ipolidivisible n lon = ((mod n lon) == 0) && (ipolidivisible (div n 10) (lon-1))
+        long n
+            | n< 10 = 1
+            | otherwise = 1 + long (div n 10)
+
+reglas = 
+    [
+        ("DESPEDIDA",["ADIOS", "NOS VEREMOS"]),
+        ("HOLA",["ENCANTADO"]),
+        ("SALUDO",["HOLA","QUE TAL?"])
+    ]
+    
+reescribe cad [] = []
+reescribe cad ( (ent,sal):resto )
+    | cad == ent = sal
+    | otherwise = reescribe cad resto
+    
+reescritura r [] = []
+reescritura r (cad:resto) 
+    | salida == [] = cad:( reescritura r resto )
+    | otherwise = reescritura r ( salida ++ resto )
+    where 
+        salida = reescribe cad r
+
 -- ****** PRUEBAS PARA LA REALIZACION DE LA PRACTICA ****** --
 --Pruebas sobre el tipo de datos Stock de la práctica
 data Stock = ROOTNODE [Stock] | INNERNODE Char [Stock] | INFONODE Int
@@ -123,7 +153,12 @@ main = do
   putStrLn("16 - mapi sumarle4 lstcnc: "                       ++ show (lstMapped2))
   putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show (lstMapped3))
   putStrLn("17 - primos: "                                     ++ show (primos)) -- Solo los primos entre 2 y 100
-  
+  putStrLn("18 - polidivisible 1024: "                         ++ show (polidivisible 1024))
+  putStrLn("19 - polidivisible 1025: "                         ++ show (polidivisible 1025))
+  putStrLn("20 - reescribe POTATO reglas: "                    ++ show (reescribe "POTATO" reglas))
+  putStrLn("21 - reescribe SALUDO reglas: "                    ++ show (reescribe "SALUDO" reglas))
+  putStrLn("22 - reescritura reglas [...]: "                   ++ show (reescritura reglas ["SALUDO","EJECUTANDO","DESPEDIDA"]))
+  putStrLn("")
   putStrLn("99: retrieveStock prueba existe    OK = "                   ++ show ( retrieveStock cosa "cosa"))
   putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStock cosa "acosa"))
   putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStock cosa "cosaaaaa"))
