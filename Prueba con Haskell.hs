@@ -105,6 +105,12 @@ reescritura r (cad:resto)
     where 
         salida = reescribe cad r
 
+existencia2 :: [Int] -> Int
+existencia2 l@(x:xs)
+  | l == [] = -1 
+  | l /= [] && x == -1 = existencia xs
+  | otherwise = x
+
 -- ****** PRUEBAS PARA LA REALIZACION DE LA PRACTICA ****** --
 --Pruebas sobre el tipo de datos Stock de la práctica
 data Stock = ROOTNODE [Stock] | INNERNODE Char [Stock] | INFONODE Int
@@ -115,18 +121,38 @@ createStock = ROOTNODE []
 
 --Un Stock concreto
 cosa = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
+cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INNERNODE ' ' [], INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]] ]]]]]] --INNERNODE 'o' []
 
 --Funcion que devuelve el número de elementos de ese stock
 retrieveStock :: Stock -> String -> Int
 retrieveStock (INFONODE num) p 
   | p == "" = num
   | otherwise = -1
-retrieveStock (INNERNODE chr (s:stocks)) (p:ps)
+retrieveStock (INNERNODE chr l@(s:stocks)) (p:ps)
   | chr == p = retrieveStock s ps
   | otherwise = -1
-retrieveStock (ROOTNODE l@(s:stocks)) p 
+retrieveStock (ROOTNODE l@(s:stocks)) p
   | l == [] = -1
-  | otherwise = retrieveStock s p
+  | otherwise = existencia (map porCada l) --aplicar retrieveStock a cada elemento de l -- map (porCada p) l
+  where 
+    porCada :: Stock -> Int 
+    porCada s = retrieveStock s p
+    existencia :: [Int] -> Int
+    existencia l@(x:xs)
+      | l == [] = -1 
+      | l /= [] && x == -1 = existencia xs
+      | otherwise = x
+
+retrieveStockOLD :: Stock -> String -> Int
+retrieveStockOLD (INFONODE num) p 
+  | p == "" = num
+  | otherwise = -1
+retrieveStockOLD (INNERNODE chr (s:stocks)) (p:ps)
+  | chr == p = retrieveStockOLD s ps
+  | otherwise = -1
+retrieveStockOLD (ROOTNODE l@(s:stocks)) p 
+  | l == [] = -1
+  | otherwise = retrieveStockOLD s p
 
 --Funcion que actualiza el stock
 updateStock :: Stock         -> String -> Int -> Stock
@@ -166,7 +192,10 @@ main = do
   putStrLn("20 - reescribe POTATO reglas: "                    ++ show (reescribe "POTATO" reglas))
   putStrLn("21 - reescribe SALUDO reglas: "                    ++ show (reescribe "SALUDO" reglas))
   putStrLn("22 - reescritura reglas [...]: "                   ++ show (reescritura reglas ["SALUDO","EJECUTANDO","DESPEDIDA"]))
+  putStrLn("23 - existencia2 [-1,6,5]: "                       ++ show (existencia2 [-1,6,5]))
   putStrLn("")
-  putStrLn("99: retrieveStock prueba existe    OK = "                   ++ show ( retrieveStock cosa "cosa"))
-  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStock cosa "acosa"))
-  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStock cosa "cosaaaaa"))
+  putStrLn("99: retrieveStock prueba existe    OK = "                   ++ show ( retrieveStockOLD cosa "cosa"))
+  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStockOLD cosa "acosa"))
+  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStockOLD cosa "cosaaaaa"))
+  --putStrLn("99: retrieveStock prueba cosa 2 = "                         ++ show ( retrieveStockOLD cosa2 "plato hondo"))
+  putStrLn("99: show read = "                                           ++ show ( cosa2))

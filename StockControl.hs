@@ -51,7 +51,7 @@ updateStock s l@(p:ps) u
 -- FUNCIÓN QUE DEVUELVE UNA LISTA PARES PRODUCTO-EXISTENCIA --
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
 listStock :: Stock -> String -> [(String,Int)]
-
+listStock s p = [("SIN DESARROLLAS",0)]
 
 -- FUNCIÓN GENÉRICA DE BACKTRACKING --
 bt :: (a -> Bool) -> (a -> [a]) -> a -> [a]
