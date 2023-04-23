@@ -128,6 +128,14 @@ retrieveStock (ROOTNODE l@(s:stocks)) p
   | l == [] = -1
   | otherwise = retrieveStock s p
 
+--Funcion que actualiza el stock
+updateStock :: Stock         -> String -> Int -> Stock
+updateStock s l@(p:ps) u 
+  | s == (ROOTNODE []) = (ROOTNODE [updateStock (INNERNODE p []) l u])
+  | (s == (INNERNODE p []) && l /= "") = (INNERNODE p [updateStock (INNERNODE p []) l u])
+  | otherwise = (INNERNODE p [(INFONODE u)])
+--  | (s == (INNERNODE p []) && l == "") = (INNERNODE p [(INFONODE u)])
+
 
 -- ******************************************************** --
 
