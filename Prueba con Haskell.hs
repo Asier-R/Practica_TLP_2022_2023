@@ -108,7 +108,7 @@ reescritura r (cad:resto)
 existencia2 :: [Int] -> Int
 existencia2 l@(x:xs)
   | l == [] = -1 
-  | l /= [] && x == -1 = existencia xs
+  | l /= [] && x == -1 = existencia2 xs
   | otherwise = x
 
 -- ****** PRUEBAS PARA LA REALIZACION DE LA PRACTICA ****** --
@@ -121,44 +121,29 @@ createStock = ROOTNODE []
 
 --Un Stock concreto
 cosa = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
-cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INNERNODE ' ' [], INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]] ]]]]]] --INNERNODE 'o' []
+cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 
 --Funcion que devuelve el número de elementos de ese stock
 retrieveStock :: Stock -> String -> Int
 retrieveStock (INFONODE num) p 
   | p == "" = num
   | otherwise = -1
-retrieveStock (INNERNODE chr l@(s:stocks)) (p:ps)
-  | chr == p = retrieveStock s ps
+retrieveStock (INNERNODE chr (s:stocks)) k@(p:ps)
+  | ( chr == p ) = retrieveStock s ps
+  | ( chr /= p && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) k
+  | ( p == ' ' && ps == []) = retrieveStock s k
   | otherwise = -1
-retrieveStock (ROOTNODE l@(s:stocks)) p
+retrieveStock (ROOTNODE l@( i@(INNERNODE chr st) : stocks )) k@(p:ps) --REPLICAR ESTA CABECERA EN LA DE ARRIBA PARA DIFERENCIAR ENTRE UN INFONODE Y UN INNERNODE Y PODER PASAR AL SIGUIENTE STOCK EN PARALELO
   | l == [] = -1
-  | otherwise = existencia (map porCada l) --aplicar retrieveStock a cada elemento de l -- map (porCada p) l
-  where 
-    porCada :: Stock -> Int 
-    porCada s = retrieveStock s p
-    existencia :: [Int] -> Int
-    existencia l@(x:xs)
-      | l == [] = -1 
-      | l /= [] && x == -1 = existencia xs
-      | otherwise = x
-
-retrieveStockOLD :: Stock -> String -> Int
-retrieveStockOLD (INFONODE num) p 
-  | p == "" = num
+  | chr == p = retrieveStock i k
+  | ( chr /= p && stocks /= [] ) = retrieveStock (ROOTNODE stocks) k
   | otherwise = -1
-retrieveStockOLD (INNERNODE chr (s:stocks)) (p:ps)
-  | chr == p = retrieveStockOLD s ps
-  | otherwise = -1
-retrieveStockOLD (ROOTNODE l@(s:stocks)) p 
-  | l == [] = -1
-  | otherwise = retrieveStockOLD s p
 
 --Funcion que actualiza el stock
 updateStock :: Stock         -> String -> Int -> Stock
 updateStock s l@(p:ps) u 
   | s == (ROOTNODE []) = (ROOTNODE [updateStock (INNERNODE p []) l u])
-  | (s == (INNERNODE p []) && l /= "") = (INNERNODE p [updateStock (INNERNODE p []) l u])
+  | ( s == (INNERNODE p []) && l /= "" ) = (INNERNODE p [updateStock (INNERNODE p []) l u])
   | otherwise = (INNERNODE p [(INFONODE u)])
 --  | (s == (INNERNODE p []) && l == "") = (INNERNODE p [(INFONODE u)])
 
@@ -194,8 +179,9 @@ main = do
   putStrLn("22 - reescritura reglas [...]: "                   ++ show (reescritura reglas ["SALUDO","EJECUTANDO","DESPEDIDA"]))
   putStrLn("23 - existencia2 [-1,6,5]: "                       ++ show (existencia2 [-1,6,5]))
   putStrLn("")
-  putStrLn("99: retrieveStock prueba existe    OK = "                   ++ show ( retrieveStockOLD cosa "cosa"))
-  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStockOLD cosa "acosa"))
-  putStrLn("99: retrieveStock prueba no existe OK = "                   ++ show ( retrieveStockOLD cosa "cosaaaaa"))
-  --putStrLn("99: retrieveStock prueba cosa 2 = "                         ++ show ( retrieveStockOLD cosa2 "plato hondo"))
-  putStrLn("99: show read = "                                           ++ show ( cosa2))
+
+  putStrLn("99: retrieveStock = "                              ++ show ( retrieveStock cosa "plato"))
+  putStrLn("99: retrieveStock = "                              ++ show ( retrieveStock cosa "cosa"))
+  putStrLn("99: retrieveStock = "                              ++ show ( retrieveStock cosa2 "plato "))
+  putStrLn("99: retrieveStock = "                              ++ show ( retrieveStock cosa2 "plato"))
+  putStrLn("99: retrieveStock = "                              ++ show ( retrieveStock cosa2 "plato hondo"))
