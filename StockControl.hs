@@ -22,12 +22,20 @@ retrieveStock :: Stock         -> String -> Int
 retrieveStock (INFONODE num) p 
   | p == "" = num
   | otherwise = -1
-retrieveStock (INNERNODE chr (s:stocks)) (p:ps)
-  | chr == p = retrieveStock s ps
+retrieveStock (INNERNODE chr ( s@(INFONODE n) : stocks )) p
+  | ( p == "" ) = retrieveStock s p
+  | ( p /= "" && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) p
   | otherwise = -1
-retrieveStock (ROOTNODE l@(s:stocks)) p 
+retrieveStock (INNERNODE _ ( s@(INNERNODE c _) : _ )) "" = -1
+retrieveStock (INNERNODE chr ( s@(INNERNODE c st) : stocks )) k@(p:ps)
+  | ( c == p ) = retrieveStock s ps
+  | ( c /= p && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) k
+  | otherwise = -1
+retrieveStock (ROOTNODE l@( i@(INNERNODE c st) : stocks )) k@(p:ps) 
   | l == [] = -1
-  | otherwise = retrieveStock s p
+  | c == p = retrieveStock i ps
+  | ( c /= p && stocks /= [] ) = retrieveStock (ROOTNODE stocks) k
+  | otherwise = -1
 
 -------------------------
 -- FUNCIÓN UPDATESTOCK --

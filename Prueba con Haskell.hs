@@ -121,20 +121,21 @@ createStock = ROOTNODE []
 
 --Un Stock concreto
 cosa = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
-cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
+cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 
 --Funcion que devuelve el número de elementos de ese stock
 retrieveStock :: Stock -> String -> Int
 retrieveStock (INFONODE num) p 
   | p == "" = num
-  | otherwise = -4
+  | otherwise = -6
 retrieveStock (INNERNODE chr ( s@(INFONODE n) : stocks )) p
   | ( p == "" ) = retrieveStock s p
   | ( p /= "" && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) p
-  | otherwise = -3
+  | otherwise = -5
+retrieveStock (INNERNODE _ ( s@(INNERNODE c _) : _ )) "" = -4
 retrieveStock (INNERNODE chr ( s@(INNERNODE c st) : stocks )) k@(p:ps)
-  | ( c == p) = retrieveStock s ps
-  | ( c /= p && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) k
+  | ( c == p ) = retrieveStock s ps
+  | ( c /= p && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) k --"c:"++show(c)++" p:"++show(p)++" chr:"++show(chr)++" k:"++k ++" stocks:"++show(stocks)  --retrieveStock (INNERNODE chr stocks) k --
   | otherwise = -2
 retrieveStock (ROOTNODE l@( i@(INNERNODE c st) : stocks )) k@(p:ps) 
   | l == [] = -1
@@ -183,10 +184,11 @@ main = do
   putStrLn("23 - existencia2 [-1,6,5]: "                       ++ show (existencia2 [-1,6,5]))
   putStrLn("")
 
-  putStrLn("z - 1: retrieveStock = "                              ++ show ( retrieveStock cosa "plato"))
-  putStrLn("z - 2: retrieveStock = "                              ++ show ( retrieveStock cosa "cosa"))
-  putStrLn("z - 3: retrieveStock = "                              ++ show ( retrieveStock cosa2 "plato"))
-  putStrLn("z - 4: retrieveStock = "                              ++ show ( retrieveStock cosa2 "plato hondo"))
-  putStrLn("z - 5: retrieveStock = "                              ++ show ( retrieveStock cosa2 "platob"))
-  putStrLn("z - 6: retrieveStock = "                              ++ show ( retrieveStock cosa "cosa "))
-  putStrLn("z - 7: retrieveStock = "                              ++ show ( retrieveStock cosa2 "plato ")) --revisar
+  putStrLn("z - 1: retrieveStock cosa  'plato'       = "                              ++ show ( retrieveStock cosa  "plato"))
+  putStrLn("z - 2: retrieveStock cosa  'cosa'        = "                              ++ show ( retrieveStock cosa  "cosa"))
+  putStrLn("z - 3: retrieveStock cosa2 'plato'       = "                              ++ show ( retrieveStock cosa2 "plato"))
+  putStrLn("z - 4: retrieveStock cosa2 'plato hondo' = "                              ++ show ( retrieveStock cosa2 "plato hondo"))
+  putStrLn("z - 5: retrieveStock cosa2 'platob'      = "                              ++ show ( retrieveStock cosa2 "platob"))
+  putStrLn("z - 6: retrieveStock cosa  'cosa '       = "                              ++ show ( retrieveStock cosa  "cosa "))
+  putStrLn("z - 7: retrieveStock cosa2 'plato '      = "                              ++ show ( retrieveStock cosa2 "plato "))
+  putStrLn("z - 8: retrieveStock cosa2 'platon'      = "                              ++ show ( retrieveStock cosa2 "platon"))
