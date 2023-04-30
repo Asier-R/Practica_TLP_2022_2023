@@ -45,11 +45,36 @@ retrieveStock (ROOTNODE l@( i@(INNERNODE c st) : stocks )) k@(p:ps)
 -- SÓLO PUEDE ALMACENAR NÚMEROS MAYORES O IGUALES A 0               --
 
 updateStock :: Stock         -> String -> Int -> Stock
-updateStock s l@(p:ps) u 
-  | s == (ROOTNODE []) = (ROOTNODE [updateStock (INNERNODE p []) l u])
-  | (s == (INNERNODE p []) && l /= "") = (INNERNODE p [updateStock (INNERNODE p []) l u])
-  | otherwise = (INNERNODE p [(INFONODE u)])
---  | (s == (INNERNODE p []) && l == "") = (INNERNODE p [(INFONODE u)])
+updateStock (INFONODE n)           ""  u      = (INFONODE u)
+updateStock (ROOTNODE [])          k@(p:ps) u = (ROOTNODE [ updateStock (INNERNODE p []) ps u ]) 
+updateStock (INNERNODE c [])       "" u       = (INFONODE u)
+updateStock (INNERNODE c [])       k@(p:ps) u = (INNERNODE p [ updateStock (INNERNODE p []) ps u ]) 
+updateStock i@(INNERNODE c (s:st)) k@(p:ps) u 
+  | ((compara s ps) ==  0) = (INNERNODE c ( (updateStock s ps u):st ))                  -- continua por esa rama
+  | ((compara s ps) ==  1) = (INNERNODE c (  s:(updateStock (INNERNODE p st) k u):st )) -- concatena depues de s
+  | ((compara s ps) == -1) = (INNERNODE c ( (updateStock (INNERNODE p []) ps u):s:st )) -- concatena antes  de s
+  | otherwise  = i
+  where 
+    compara :: Stock -> String -> Int 
+    compara (INFONODE _)     "" = 0
+    compara (INFONODE _)     p  = 1
+    compara (INNERNODE c st) (p:ps)
+      | c == p    =  0
+      | c < p     =  1
+      | otherwise = -1
+updateStock i@(ROOTNODE (s:st)) k@(p:ps) u 
+  | (compara s k) ==  0 = (ROOTNODE ( (updateStock s ps u):st ))                  -- continua por esa rama
+  | (compara s k) ==  1 = (ROOTNODE (  s:(updateStock (INNERNODE p st) k u):st )) -- concatena depues de s
+  | (compara s k) == -1 = (ROOTNODE ( (updateStock (INNERNODE p []) ps u):s:st )) -- concatena antes  de s
+  | otherwise = i
+  where 
+    compara :: Stock -> String -> Int 
+    compara (INFONODE _)     "" = 0
+    compara (INFONODE _)     p  = 1
+    compara (INNERNODE c st) (p:ps)
+      | c == p    =  0
+      | c < p     =  1
+      | otherwise = -1
 
 
 -----------------------
