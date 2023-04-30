@@ -135,6 +135,7 @@ createStock = ROOTNODE []
 --Un Stock concreto
 cosa = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
 cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
+cosa3 = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]],INNERNODE 'm' [INNERNODE 'a' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'a' [INFONODE 6]]]]],INNERNODE 'm' [INNERNODE 'a' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'a' [INFONODE 3]]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'a' [INFONODE 3]]]]]]]
 
 --Funcion que devuelve el número de elementos de ese stock
 retrieveStock :: Stock -> String -> Int
@@ -169,8 +170,8 @@ recorrer s@(st:stock) k@(p:ps) u
   |  null s && k == ""     =  [INFONODE u]
   |  null s && k /= ""     =  [updateStock (INNERNODE p []) ps u]
   |  compara st [p] ==  0  =  updateStock st ps u : stock
-  |  compara st [p] ==  1  =  st : updateStock (INNERNODE p []) ps u : stock -- st : (recorrer stock k u)
-  |  compara st [p] == -1  =  updateStock (INNERNODE p []) ps u : st : stock
+  |  compara st [p] ==  1  =  st : [updateStock (INNERNODE p []) ps u] -- st : (recorrer stock k u)
+  |  compara st [p] == -1  =  updateStock (INNERNODE p []) ps u : s
   where 
   compara :: Stock -> String -> Int 
   compara (INFONODE _)     "" = 0
@@ -224,7 +225,7 @@ main = do
   putStrLn("z - 6: retrieveStock cosa  'cosa '       = "                              ++ show ( retrieveStock cosa  "cosa "))
   putStrLn("z - 7: retrieveStock cosa2 'plato '      = "                              ++ show ( retrieveStock cosa2 "plato "))
   putStrLn("z - 8: retrieveStock cosa2 'platon'      = "                              ++ show ( retrieveStock cosa2 "platon"))
-  putStrLn("z - 9: comparable = " ++ show( comparable 'c' 'p' ))
+  putStrLn("z - 9: comparable = " ++ show( comparable 'p' 'm' ))
   putStrLn("z - 10: head = " ++ show( head [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   putStrLn("z - 11: drop = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   putStrLn("z - 12: drop = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []]] ))
