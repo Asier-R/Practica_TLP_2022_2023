@@ -1,6 +1,8 @@
+
+--{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+--{-# HLINT ignore "Redundant bracket" #-}
+
 --Suma de dos números
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Redundant bracket" #-}
 sumar x y = x + y
 
 --Suma de unidades previas a la entrada n
@@ -140,46 +142,47 @@ retrieveStock (INFONODE num) p
   | p == "" = num
   | otherwise = -6
 retrieveStock (INNERNODE chr ( s@(INFONODE n) : stocks )) p
-  | ( p == "" ) = retrieveStock s p
-  | ( p /= "" && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) p
+  | p == "" = retrieveStock s p
+  | p /= "" && stocks /= [] = retrieveStock (INNERNODE chr stocks) p
   | otherwise = -5
 retrieveStock (INNERNODE _ ( s@(INNERNODE c _) : _ )) "" = -4
 retrieveStock (INNERNODE chr ( s@(INNERNODE c st) : stocks )) k@(p:ps)
-  | ( c == p ) = retrieveStock s ps
-  | ( c /= p && stocks /= [] ) = retrieveStock (INNERNODE chr stocks) k --"c:"++show(c)++" p:"++show(p)++" chr:"++show(chr)++" k:"++k ++" stocks:"++show(stocks)  --retrieveStock (INNERNODE chr stocks) k --
+  | c == p = retrieveStock s ps
+  | c /= p && stocks /= [] = retrieveStock (INNERNODE chr stocks) k --"c:"++show(c)++" p:"++show(p)++" chr:"++show(chr)++" k:"++k ++" stocks:"++show(stocks)  --retrieveStock (INNERNODE chr stocks) k --
   | otherwise = -2
 retrieveStock (ROOTNODE l@( i@(INNERNODE c st) : stocks )) k@(p:ps) 
-  | l == [] = -1
+  | null l = -1
   | c == p = retrieveStock i ps
-  | ( c /= p && stocks /= [] ) = retrieveStock (ROOTNODE stocks) k
+  | c /= p && stocks /= [] = retrieveStock (ROOTNODE stocks) k
   | otherwise = -1
 
 --Funcion que actualiza el stock
 updateStock :: Stock         -> String -> Int -> Stock
-updateStock (INFONODE  n)          ""  u      = (INFONODE  u)
-updateStock (ROOTNODE  [])         k@(p:ps) u = (ROOTNODE    [ updateStock (INNERNODE p []) ps u ]) 
-updateStock (INNERNODE c [])       "" u       = (INNERNODE c [(INFONODE  u)])
-updateStock (INNERNODE c [])       k@(p:ps) u = (INNERNODE c [ updateStock (INNERNODE p []) ps u ]) 
-updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = (INNERNODE c (recorrer r k u))         
-updateStock (ROOTNODE  r@(s:st))   k@(p:ps) u = (ROOTNODE    (recorrer r k u))
+updateStock (INFONODE  n)          ""  u      = INFONODE  u
+updateStock (ROOTNODE  [])         k@(p:ps) u = ROOTNODE    [ updateStock (INNERNODE p []) ps u ]
+updateStock (INNERNODE c [])       "" u       = INNERNODE c [INFONODE  u]
+updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNERNODE p []) ps u ]
+updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
+updateStock (ROOTNODE  r@(s:st))   k@(p:ps) u = ROOTNODE    (recorrer r k u)
 recorrer :: [Stock] -> String -> Int -> [Stock]
 recorrer s@(st:stock) k@(p:ps) u
-  | ( null s && k == "" )    =  [(INFONODE u)]
-  | ( null s && k /= "" )    =  [updateStock (INNERNODE p []) ps u]
-  | ( compara st [p] ==  0 ) =  (updateStock st ps u) : stock
-  | ( compara st [p] ==  1 ) =  st : (updateStock (INNERNODE p []) ps u) : stock -- st : (recorrer stock k u)
-  | ( compara st [p] == -1 ) =  (updateStock (INNERNODE p []) ps u) : st : stock
-compara :: Stock -> String -> Int 
-compara (INFONODE _)     "" = 0
-compara (INFONODE _)     p  = 1
-compara (INNERNODE c st) (p:ps)
-  | c == p    =  0
-  | c < p     =  1
-  | otherwise = -1 
+  |  null s && k == ""     =  [INFONODE u]
+  |  null s && k /= ""     =  [updateStock (INNERNODE p []) ps u]
+  |  compara st [p] ==  0  =  updateStock st ps u : stock
+  |  compara st [p] ==  1  =  st : updateStock (INNERNODE p []) ps u : stock -- st : (recorrer stock k u)
+  |  compara st [p] == -1  =  updateStock (INNERNODE p []) ps u : st : stock
+  where 
+  compara :: Stock -> String -> Int 
+  compara (INFONODE _)     "" = 0
+  compara (INFONODE _)     p  = 1
+  compara (INNERNODE c st) (p:ps)
+    | c == p    =  0
+    | c < p     =  1
+    | otherwise = -1 
 -- ******************************************************** --
 
-variable :: Stock
-variable = updateStock cosa2 "plato" 88
+
+
 
 
 --Programa principal
@@ -232,4 +235,6 @@ main = do
   putStrLn("z - 9: updateStock (ROOTNODE []) 'plato' = "                              ++ show ( updateStock (ROOTNODE []) "plato" 8))
   putStrLn("z - 10: updateStock cosa 'alato'         = "                              ++ show ( updateStock cosa "alato" 88))
   putStrLn("z - 11: updateStock cosa 'plato'         = "                              ++ show ( updateStock cosa "plato" 99))
-  --putStrLn("z - 11: cosa2                            = "                              ++ show variable )
+  putStrLn("z - 12: retrieveStock cosa 'plato'       = "                              ++ show ( retrieveStock (updateStock cosa "plato" 99) "plato" ))
+
+
