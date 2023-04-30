@@ -196,21 +196,21 @@ main = do
   putStrLn("08 - dividir 5 2: "                                ++ show (dividir 5 2))
   putStrLn("09 - sumar3 5 2: "                                 ++ show (sumar3 5 2))
   putStrLn("10 - sumarle4 1: "                                 ++ show (sumarle4 1))
-  putStrLn("11 - lstcnc: "                                     ++ show (lstcnc))
-  putStrLn("12 - zplst: "                                      ++ show (zplst))
-  putStrLn("13 - zplst2: "                                     ++ show (zplst2))
+  putStrLn("11 - lstcnc: "                                     ++ show lstcnc)
+  putStrLn("12 - zplst: "                                      ++ show zplst)
+  putStrLn("13 - zplst2: "                                     ++ show zplst2)
   putStrLn("14 - unzipi zplst: "                               ++ show (unzipi zplst))
-  putStrLn("15 - map sumarle4 lstcnc: "                        ++ show (lstMapped))
-  putStrLn("16 - mapi sumarle4 lstcnc: "                       ++ show (lstMapped2))
-  putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show (lstMapped3))
-  putStrLn("17 - primos: "                                     ++ show (primos)) -- Solo los primos entre 2 y 100
+  putStrLn("15 - map sumarle4 lstcnc: "                        ++ show lstMapped)
+  putStrLn("16 - mapi sumarle4 lstcnc: "                       ++ show lstMapped2)
+  putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show lstMapped3)
+  putStrLn("17 - primos: "                                     ++ show primos) -- Solo los primos entre 2 y 100
   putStrLn("18 - polidivisible 1024: "                         ++ show (polidivisible 1024))
   putStrLn("19 - polidivisible 1025: "                         ++ show (polidivisible 1025))
   putStrLn("20 - reescribe POTATO reglas: "                    ++ show (reescribe "POTATO" reglas))
   putStrLn("21 - reescribe SALUDO reglas: "                    ++ show (reescribe "SALUDO" reglas))
   putStrLn("22 - reescritura reglas [...]: "                   ++ show (reescritura reglas ["SALUDO","EJECUTANDO","DESPEDIDA"]))
   putStrLn("23 - existencia2 [-1,6,5]: "                       ++ show (existencia2 [-1,6,5]))
-  putStrLn("")
+  putStrLn ""
 
   putStrLn("z - 1: retrieveStock cosa  'plato'       = "                              ++ show ( retrieveStock cosa  "plato"))
   putStrLn("z - 2: retrieveStock cosa  'cosa'        = "                              ++ show ( retrieveStock cosa  "cosa"))
@@ -220,8 +220,8 @@ main = do
   putStrLn("z - 6: retrieveStock cosa  'cosa '       = "                              ++ show ( retrieveStock cosa  "cosa "))
   putStrLn("z - 7: retrieveStock cosa2 'plato '      = "                              ++ show ( retrieveStock cosa2 "plato "))
   putStrLn("z - 8: retrieveStock cosa2 'platon'      = "                              ++ show ( retrieveStock cosa2 "platon"))
-  putStrLn("")
+  putStrLn ""
 
   putStrLn("z - 9: updateStock (ROOTNODE []) 'plato' = "                              ++ show ( updateStock (ROOTNODE []) "plato" 8))
   putStrLn("z - 10: updateStock cosa2 'plato'        = "                              ++ show ( updateStock cosa2 "plato" 88))
-  putStrLn("z - 11: cosa2                            = "                              ++ show ( variable ))
+  putStrLn("z - 11: cosa2                            = "                              ++ show variable )
