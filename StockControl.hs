@@ -19,23 +19,19 @@ createStock = ROOTNODE []
 -- SI NO ESTÁ, DEBERÁ DEVOLVER -1                                        --
 
 retrieveStock :: Stock         -> String -> Int
-retrieveStock (INFONODE num) p 
-  | p == "" = num
-  | otherwise = -6
-retrieveStock (INNERNODE chr ( s@(INFONODE n) : stocks )) p
-  | p == "" = retrieveStock s p
-  | p /= "" && stocks /= [] = retrieveStock (INNERNODE chr stocks) p
-  | otherwise = -5
-retrieveStock (INNERNODE _ ( s@(INNERNODE c _) : _ )) "" = -4
-retrieveStock (INNERNODE chr ( s@(INNERNODE c st) : stocks )) k@(p:ps)
-  | c == p = retrieveStock s ps
-  | c /= p && stocks /= [] = retrieveStock (INNERNODE chr stocks) k 
-  | otherwise = -2
-retrieveStock (ROOTNODE l@( i@(INNERNODE c st) : stocks )) k@(p:ps) 
-  | null l = -1
-  | c == p = retrieveStock i ps
-  | c /= p && stocks /= [] = retrieveStock (ROOTNODE stocks) k
-  | otherwise = -1
+retrieveStock (INFONODE n) ""                    = n
+retrieveStock (INFONODE n)  p                    = -1
+retrieveStock (INNERNODE c ((INFONODE n):st)) "" = n
+retrieveStock (INNERNODE c st) ""                = -2
+retrieveStock (INNERNODE c []) _                 = -3
+retrieveStock (INNERNODE c (s:st)) k@(p:ps) 
+  | c == p && retrieveStock s ps < 0             = retrieveStock (INNERNODE c st) k
+  | c /= p                                       = retrieveStock (INNERNODE c st) k
+  | otherwise                                    = retrieveStock s ps
+retrieveStock (ROOTNODE [])     p                = -5
+retrieveStock (ROOTNODE (s:st)) k@(p:ps) 
+  | retrieveStock s k < 0                        = retrieveStock (ROOTNODE st) k
+  | otherwise                                    = retrieveStock s k
 
 -------------------------
 -- FUNCIÓN UPDATESTOCK --
@@ -75,7 +71,7 @@ recorrer s@(st:stock) k@(p:ps) u
 -- FUNCIÓN QUE DEVUELVE UNA LISTA PARES PRODUCTO-EXISTENCIA --
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
 listStock :: Stock -> String -> [(String,Int)]
-listStock s p = [("SIN DESARROLLAS",0)]
+listStock s p = [("SIN DESARROLLAR",0)]
 
 -- FUNCIÓN GENÉRICA DE BACKTRACKING --
 bt :: (a -> Bool) -> (a -> [a]) -> a -> [a]
