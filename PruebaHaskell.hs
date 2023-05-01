@@ -194,8 +194,8 @@ recorrer s@(st:stock) k@(p:ps) u
 
 -- FUNCIÓN QUE DEVUELVE UNA LISTA PARES PRODUCTO-EXISTENCIA --
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
-listStock :: Stock -> String -> [Stock]--[(String,Int)]
-listStock s p = bt (esSol p) (hijos p) s
+listStock :: Stock -> String -> [(String,Int)]
+listStock s p = listar (bt (esSol p) (hijos p) s) ""
 
 -- FUNCIÓN GENÉRICA DE BACKTRACKING -- 
 -- eS = funcion solucion
@@ -209,7 +209,9 @@ bt    eS             c             n
 
 listar :: [Stock] -> String -> [(String,Int)]
 listar [INFONODE n] p = [(p,n)]
-listar ((INNERNODE c s):st) p = listar s (c:p) ++ listar st p
+listar [] p = []
+listar ((INFONODE n):st) p    = (p,n) : listar st p
+listar ((INNERNODE c s):st) p = listar s (p++[c]) ++ listar st p
   
 entuplar :: Stock -> [String] -> [(String,Int)]
 entuplar s p = map (asocia s) p
@@ -334,5 +336,7 @@ main = do
   putStrLn("z - 20: esSol cosa4 c                    = " ++show (esSol2 cosa4 "c" ))
   putStrLn("z - 21: esSol cosa3 c                    = " ++show (esSol2 cosa3 "c" ))
   putStrLn("z - 22: esSol cosa3 c                    = " ++show (esSol2 cosa3 "c" ))
-  putStrLn("z - 23: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
-  putStrLn("z - 24: listar    cosa4 p                = " ++show (listar (listStock cosa4 "p") "" ))
+  putStrLn("z - 23: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
+  putStrLn("z - 24: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
+  putStrLn("z - 25: listStock cosa4 plato            = " ++show (listStock cosa4 "plato"))
+  putStrLn("z - 26: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
