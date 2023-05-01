@@ -194,11 +194,10 @@ recorrer s@(st:stock) k@(p:ps) u
 
 -- FUNCIÓN QUE DEVUELVE UNA LISTA PARES PRODUCTO-EXISTENCIA --
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
---listStock :: Stock -> String -> [(String,Int)]
---listStock s p 
---  | p == "" = []
---  | otherwise = entuplar (bt (esSol s p) (hijos s) s)
---  where 
+listStock :: Stock -> String -> [(String,Int)]
+listStock s p 
+  | p == "" = []
+  | otherwise = entuplar s [p]
   
 entuplar :: Stock -> [String] -> [(String,Int)]
 entuplar s p = map (asocia s) p
@@ -207,11 +206,29 @@ entuplar s p = map (asocia s) p
     asocia s p = (p , retrieveStock s p)
     
 esSol :: Stock -> String -> Bool
-esSol s p 
-  | retrieveStock s p < 0 = False
-  | otherwise             = True
-hijos :: Stock -> [Stock]
-hijos s = []
+esSol (INFONODE _)    _  = False
+esSol (INNERNODE c _) "" = True
+esSol (INNERNODE c _) (p:ps) 
+  | c == p = True
+  | otherwise = False
+esSol (ROOTNODE [])     _  = True
+esSol (ROOTNODE _)      "" = True
+esSol (ROOTNODE (s:st)) p  
+  | esSol s p = True
+  | otherwise = esSol (ROOTNODE st) p  
+
+hijos :: Stock -> String -> [Stock]
+hijos (INFONODE _)            _  = [] 
+hijos (INNERNODE chr [])      "" = []
+hijos (INNERNODE chr (s:st))  "" = s : hijos (INNERNODE chr st) ""
+hijos (INNERNODE chr ((INNERNODE c s):st)) k@(p:ps) 
+  | c == p    = INNERNODE c s : hijos (INNERNODE chr st) k  --asegurarse de que c==p esta bien
+  | otherwise = hijos (INNERNODE chr st) k
+hijos (ROOTNODE [])     _ = [] 
+hijos (ROOTNODE ((INNERNODE c s):st)) k@(p:ps)  
+  | c == p    = INNERNODE c s : hijos (ROOTNODE st) k
+  | otherwise = hijos (ROOTNODE st) k
+  
   
 
 
@@ -228,6 +245,7 @@ bt    eS             c             n
 cosa  = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
 cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
+cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 -- ******************************************************** --
 
 
@@ -286,3 +304,5 @@ main = do
   putStrLn ""
 
   putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
+  putStrLn("z - 14: hijos                            = " ++show (hijos cosa2 "clato" ))
+  putStrLn("z - 14: hijos                            = " ++show (hijos cosa4 "g" ))
