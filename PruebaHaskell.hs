@@ -241,34 +241,13 @@ hijos k@(p:ps) (ROOTNODE ((INNERNODE c s):st))
   | c == p    = INNERNODE c s : hijos k (ROOTNODE st) 
   | otherwise = hijos k (ROOTNODE st) 
   
-esSol2 :: Stock -> String -> Bool
-esSol2 (INFONODE _)    _  = False
-esSol2 (INNERNODE c _) "" = True
-esSol2 (INNERNODE c _) (p:ps) 
-  | c == p = True
-  | otherwise = False
-esSol2 (ROOTNODE _) _  = True
-
-hijos2 :: Stock -> String -> [Stock]
-hijos2 (INFONODE  _)           _  = [] 
-hijos2 (INNERNODE chr [])      "" = []
-hijos2 (INNERNODE chr [])      p  = []
-hijos2 (INNERNODE chr ((INFONODE n):st))     "" = hijos2 (INNERNODE chr st) ""
-hijos2 (INNERNODE chr ((INNERNODE c s):st))  "" = INNERNODE c s : hijos2 (INNERNODE chr st) ""
-hijos2 (INNERNODE chr ((INNERNODE c s):st))  k@(p:ps) 
-  | c == p    = INNERNODE c s : hijos2 (INNERNODE chr st) k  --asegurarse de que c==p esta bien --&& hijos (INNERNODE c s) ps /= []
-  | otherwise = hijos2 (INNERNODE chr st) k
-hijos2 (ROOTNODE [])     _ = [] 
-hijos2 (ROOTNODE ((INNERNODE c s):st)) "" = INNERNODE c s : hijos2 (ROOTNODE st) "" 
-hijos2 (ROOTNODE ((INNERNODE c s):st)) k@(p:ps)  
-  | c == p    = INNERNODE c s : hijos2 (ROOTNODE st) k
-  | otherwise = hijos2 (ROOTNODE st) k
 
 -- *************** STOCKS DE PRUEBAS ********************** --
 cosa  = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
 cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
-cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
+cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
+cosa5 = INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
 -- ******************************************************** --
 
 
@@ -311,7 +290,7 @@ main = do
   putStrLn("z - 6: retrieveStock cosa  'cosa '       = " ++ show ( retrieveStock2 cosa  "cosa "))
   putStrLn("z - 7: retrieveStock cosa2 'plato '      = " ++ show ( retrieveStock2 cosa2 "plato "))
   putStrLn("z - 8: retrieveStock cosa2 'platon'      = " ++ show ( retrieveStock2 cosa2 "platon"))
-  putStrLn("z - 9: comparable                        = " ++ show( comparable 'l' 'h' ))
+  putStrLn("z - 9: comparable                        = " ++ show( comparable 'g' 'p' ))
   putStrLn("z - 10: head                             = " ++ show( head [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   putStrLn("z - 11: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   putStrLn("z - 12: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []]] ))
@@ -327,16 +306,9 @@ main = do
   putStrLn ""
 
   putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
-  putStrLn("z - 14: hijos cosa2 clato                = " ++show (hijos2 cosa2 "clato" ))
-  putStrLn("z - 15: hijos cosa4 g                    = " ++show (hijos2 cosa4 "g" ))
-  putStrLn("z - 16: hijos cosa4 gi                   = " ++show (hijos2 cosa4 "gi" ))
-  putStrLn("z - 17: hijos cosa4 ''                   = " ++show (hijos2 cosa4 "" ))
-  putStrLn("z - 18: hijos cosa3 p                    = " ++show (hijos2 cosa3 "p" ))
-  putStrLn("z - 19: hijos cosa3 l                    = " ++show (hijos2 cosa3 "l" ))
-  putStrLn("z - 20: esSol cosa4 c                    = " ++show (esSol2 cosa4 "c" ))
-  putStrLn("z - 21: esSol cosa3 c                    = " ++show (esSol2 cosa3 "c" ))
-  putStrLn("z - 22: esSol cosa3 c                    = " ++show (esSol2 cosa3 "c" ))
-  putStrLn("z - 23: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
-  putStrLn("z - 24: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
-  putStrLn("z - 25: listStock cosa4 plato            = " ++show (listStock cosa4 "plato"))
-  putStrLn("z - 26: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
+  putStrLn("z - 14: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
+  putStrLn("z - 15: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
+  putStrLn("z - 16: listStock cosa4 plato            = " ++show (listStock cosa4 "pl"))
+  putStrLn("z - 17: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
+  putStrLn("z - 18: (bt (esSol p) (hijos p) s)       = " ++show (bt (esSol "pl") (hijos "pl") cosa4))
+  putStrLn("z - 19: esSol pl                         = " ++show (esSol "pl" cosa5))
