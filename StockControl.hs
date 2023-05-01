@@ -52,7 +52,7 @@ recorrer s@(st:stock) k@(p:ps) u
   |  null s && k == ""     =  [INFONODE u]
   |  null s && k /= ""     =  [updateStock (INNERNODE p []) ps u]
   |  compara st [p] ==  0  =  updateStock st ps u : stock
-  |  compara st [p] ==  1  =  st : [updateStock (INNERNODE p []) ps u] -- st : (recorrer stock k u)
+  |  compara st [p] ==  1  =  st : [updateStock (INNERNODE p []) ps u] 
   |  compara st [p] == -1  =  updateStock (INNERNODE p []) ps u : s
   where 
   compara :: Stock -> String -> Int 
