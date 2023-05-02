@@ -197,6 +197,9 @@ recorrer s@(st:stock) k@(p:ps) u
 listStock :: Stock -> String -> [(String,Int)]
 listStock s p = listar (bt (esSol p) (hijos p) s) ""
 
+listStock2 :: Stock -> String -> [Stock]
+listStock2 s p = bt (esSol p) (hijos p) s
+
 -- FUNCIÓN GENÉRICA DE BACKTRACKING -- 
 -- eS = funcion solucion
 -- c  = funcion que devuelve los hijos validos de un nodo
@@ -230,10 +233,10 @@ esSol _ (ROOTNODE _)         = False
 hijos :: String -> Stock -> [Stock]
 hijos _  (INFONODE  _)                         = [] 
 hijos _  (INNERNODE chr [])                    = []
-hijos "" (INNERNODE chr ((INFONODE n):st))     = hijos "" (INNERNODE chr st)
+hijos p  (INNERNODE chr ((INFONODE n):st))     = INFONODE n : hijos p (INNERNODE chr st)
 hijos "" (INNERNODE chr ((INNERNODE c s):st))  = INNERNODE c s : hijos "" (INNERNODE chr st) 
 hijos k@(p:ps) (INNERNODE chr ((INNERNODE c s):st))   
-  | c == p    = INNERNODE c s : hijos k (INNERNODE chr st)   --asegurarse de que c==p esta bien --&& hijos (INNERNODE c s) ps /= []
+  | c == p    = INNERNODE c s : hijos k (INNERNODE chr st)   
   | otherwise = hijos k (INNERNODE chr st) 
 hijos _ (ROOTNODE [])      = [] 
 hijos "" (ROOTNODE ((INNERNODE c s):st))  = INNERNODE c s : hijos  "" (ROOTNODE st)  
@@ -241,6 +244,7 @@ hijos k@(p:ps) (ROOTNODE ((INNERNODE c s):st))
   | c == p    = INNERNODE c s : hijos k (ROOTNODE st) 
   | otherwise = hijos k (ROOTNODE st) 
   
+
 
 -- *************** STOCKS DE PRUEBAS ********************** --
 cosa  = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
@@ -308,7 +312,16 @@ main = do
   putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
   putStrLn("z - 14: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
   putStrLn("z - 15: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
-  putStrLn("z - 16: listStock cosa4 plato            = " ++show (listStock cosa4 "pl"))
+  putStrLn("z - 16: listStock cosa4 pl               = " ++show (listStock cosa4 "pl"))
+  putStrLn("z - 16: listStock2 cosa4 pl               = " ++show (listStock2 cosa4 "pl"))
+  putStrLn ""
   putStrLn("z - 17: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
+  putStrLn("z - 17: listStock2 cosa4 pa               = " ++show (listStock2 cosa4 "pa"))
+  putStrLn("z - 17: hijos cosa4 pa = " ++show (esSol "pa" (head (hijos "pa" cosa4 ))))
+  putStrLn("z - 17: hijos cosa4 pa = " ++show (head (hijos "pa" cosa4 )))
+  putStrLn ""
   putStrLn("z - 18: (bt (esSol p) (hijos p) s)       = " ++show (bt (esSol "pl") (hijos "pl") cosa4))
-  putStrLn("z - 19: esSol pl                         = " ++show (esSol "pl" cosa5))
+  putStrLn("z - 19: esSol pl cosa5                   = " ++show (esSol "pl" cosa5))
+  putStrLn("z - 20: hijos pl cosa4                   = " ++show (hijos "pl" cosa4))
+  putStrLn("z - 21: hijos l  cosa5                   = " ++show (hijos "l"  cosa5))
+  putStrLn ""
