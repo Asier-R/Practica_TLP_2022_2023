@@ -184,11 +184,12 @@ updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNER
 updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
 updateStock (ROOTNODE  r@(s:st))   k@(p:ps) u = ROOTNODE    (recorrer r k u)
 recorrer :: [Stock] -> String -> Int -> [Stock]
+recorrer [] k@(p:ps) u = [updateStock (INNERNODE p []) ps u]
 recorrer s@(st:stock) k@(p:ps) u
   |  null s && k == ""     =  [INFONODE u]
   |  null s && k /= ""     =  [updateStock (INNERNODE p []) ps u]
   |  compara st [p] ==  0  =  updateStock st ps u : stock
-  |  compara st [p] ==  1  =  st : [updateStock (INNERNODE p []) ps u] 
+  |  compara st [p] ==  1  =  st : recorrer stock k u 
   |  compara st [p] == -1  =  updateStock (INNERNODE p []) ps u : s
   where 
   compara :: Stock -> String -> Int 
@@ -291,7 +292,7 @@ cosa  = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [IN
 cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
 cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
-cosa5 = INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
+cosa5 = ROOTNODE [INNERNODE 'l' [INNERNODE 'i' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'e' [INNERNODE 'r' [INNERNODE 'n' [INNERNODE 'a' [INFONODE 999]]]]]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 -- ******************************************************** --
 
 
@@ -334,7 +335,7 @@ main = do
   putStrLn("z - 6: retrieveStock cosa  'cosa '       = " ++ show ( retrieveStock2 cosa  "cosa "))
   putStrLn("z - 7: retrieveStock cosa2 'plato '      = " ++ show ( retrieveStock2 cosa2 "plato "))
   putStrLn("z - 8: retrieveStock cosa2 'platon'      = " ++ show ( retrieveStock2 cosa2 "platon"))
-  putStrLn("z - 9: comparable                        = " ++ show( comparable 'g' 'p' ))
+  putStrLn("z - 9: comparable                        = " ++ show( comparable 'z' 'd' ))
   putStrLn("z - 10: head                             = " ++ show( head [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   putStrLn("z - 11: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   putStrLn("z - 12: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []]] ))
@@ -357,4 +358,5 @@ main = do
   putStrLn("z - 17: hijos cosa4 pa                   = " ++show (hijos2 "plato" cosa4 ))
   putStrLn ""
   putStrLn("z - 18: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock cosa4 "plato hondo 1"))
+  putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show ( updateStock cosa5 "zozobra" 10))
   putStrLn ""
