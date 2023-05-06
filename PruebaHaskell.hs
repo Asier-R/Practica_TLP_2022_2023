@@ -191,10 +191,12 @@ updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNER
 updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ updateStock st "" u ]
 updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
 updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    (recorrer r k u)
+updateStock (INNERNODE c r@(s:st)) ""       u = INNERNODE c (recorrer r "" u) 
 updateStock s p u = s
 recorrer :: [Stock] -> String -> Int -> [Stock]
 recorrer [] ""       u = [INFONODE u]
 recorrer [] k@(p:ps) u = [updateStock (INNERNODE p []) ps u]
+recorrer s@((INFONODE n):stock) "" u = INFONODE u : stock
 recorrer s@(st:stock) k@(p:ps) u
   |  compara st [p] ==  0  =  updateStock st ps u : stock
   |  compara st [p] ==  1  =  st : recorrer stock k u 
@@ -300,7 +302,8 @@ cosa  = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [IN
 cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
 cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
-cosa5 = ROOTNODE [INNERNODE 'l' [INNERNODE 'i' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'e' [INNERNODE 'r' [INNERNODE 'n' [INNERNODE 'a' [INFONODE 999]]]]]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
+cosa5 = ROOTNODE [INNERNODE 'a' [INFONODE 1],INNERNODE 'l' [INNERNODE 'i' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'e' [INNERNODE 'r' [INNERNODE 'n' [INNERNODE 'a' [INFONODE 999]]]]]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]],INNERNODE 'z' [INFONODE 10,INNERNODE 'o' [INNERNODE 'r' [INFONODE 10]]]]
+cosa6 = ROOTNODE [INNERNODE 'a' [INFONODE 1], INNERNODE 'c' [INFONODE 3, INNERNODE 'a' [INFONODE 33]],INNERNODE 'z' [INFONODE 10,INNERNODE 'o' [INNERNODE 'r' [INFONODE 10]]]]
 -- ******************************************************** --
 
 fileName :: FilePath
@@ -396,8 +399,11 @@ main = do
   --putStrLn ""
   --putStrLn("z - 18: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock cosa4 "plato hondo 1"))
     --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "zor" 10))
-    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "linterna" 90))
-    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock ( updateStock cosa5 "z" 10) "zor" 10))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "linterna" 90))
+    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "a" 2))
+    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "c" 2))
+    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "z" 2))
+    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock ( updateStock cosa5 "z" (-9)) "zor" (-98)))
   --putStrLn ""
 
     --putStrLn("z - Test01 = " ++show ( updateStock createStock "hamburger" 14 ))

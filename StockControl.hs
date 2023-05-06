@@ -48,10 +48,12 @@ updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNER
 updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ updateStock st "" u ]
 updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
 updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    (recorrer r k u)
+updateStock (INNERNODE c r@(s:st)) ""       u = INNERNODE c (recorrer r "" u) 
 updateStock s p u = s
 recorrer :: [Stock] -> String -> Int -> [Stock]
 recorrer [] ""       u = [INFONODE u]
 recorrer [] k@(p:ps) u = [updateStock (INNERNODE p []) ps u]
+recorrer s@((INFONODE n):stock) "" u = INFONODE u : stock
 recorrer s@(st:stock) k@(p:ps) u
   |  compara st [p] ==  0  =  updateStock st ps u : stock
   |  compara st [p] ==  1  =  st : recorrer stock k u 
