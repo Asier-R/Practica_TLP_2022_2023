@@ -216,6 +216,7 @@ listar [INFONODE n] p = [(p,n)]
 listar [] p = []
 listar ((INFONODE n):st) p    = (p,n) : listar st p
 listar ((INNERNODE c s):st) p = listar s (p++[c]) ++ listar st p
+listar [ROOTNODE (s:st)] p    = listar [s] p ++ listar st p
   
 entuplar :: Stock -> [String] -> [(String,Int)]
 entuplar s p = map (asocia s) p
@@ -227,11 +228,12 @@ esSol :: String -> Stock -> Bool
 esSol p (INFONODE _)    
   | p == ""   = True
   | otherwise = False
-esSol _     (INNERNODE c []) = False
-esSol ""     (INNERNODE c _) = True
-esSol (p:ps) (INNERNODE c (s:st))  
-  | c == p    = esSol ps s
-  | otherwise = False
+esSol _  (INNERNODE c []) = False
+esSol "" (INNERNODE c _)  = True
+esSol k@(p:ps) (INNERNODE c [s]) = c == p && esSol ps s
+esSol k@(p:ps) (INNERNODE c (s:st)) = c == p && esSol ps s && esSol k (INNERNODE c st)
+esSol p (ROOTNODE [])     = False
+esSol p (ROOTNODE [s])    = esSol p s 
 esSol p (ROOTNODE (s:st)) = esSol p s && esSol p (ROOTNODE st)
 
 hijos :: String -> Stock -> [Stock]  
@@ -256,8 +258,6 @@ cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [IN
 cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
 cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa5 = INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
-
-cosa6 = ROOTNODE [INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 -- ******************************************************** --
 
 
@@ -316,20 +316,11 @@ main = do
   putStrLn ""
 
   putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
-  --putStrLn("z - 14: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
-  --putStrLn("z - 15: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
-  --putStrLn("z - 16: listStock cosa4 pl               = " ++show (listStock cosa4 "pl"))
-  --putStrLn("z - 16: listStock2 cosa4 pl               = " ++show (listStock2 cosa4 "pl"))
   putStrLn ""
-  --putStrLn("z - 17: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
-  --putStrLn("z - 17: listStock2 cosa4 pa               = " ++show (listStock2 cosa4 "pa"))
-  putStrLn("z - 17: hijos cosa4 pa = " ++show ( hijos "plato ho" cosa4 ))
-  --putStrLn("z - 17: hijos cosa4 pa = " ++show ( hijos cosa6 ))
-  putStrLn("z - 17: hijos cosa4 pa = " ++show (esSol "pl" (head (hijos "pl" cosa4 ))))
-  --putStrLn("z - 17: hijos cosa4 pa = " ++show (head (hijos "pa" cosa4 )))
+  putStrLn("z - 14: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
+  putStrLn("z - 15: listStock2 cosa4 pa              = " ++show (listStock cosa4 "plato hondo"))
+  putStrLn("z - 16: listStock2 cosa4 pa              = " ++show (listStock2 cosa4 "pa"))
+  putStrLn("z - 17: hijos cosa4 pa                   = " ++show (hijos "plato" cosa4 ))
   putStrLn ""
-  --putStrLn("z - 18: (bt (esSol p) (hijos p) s)       = " ++show (bt (esSol "pl") (hijos "pl") cosa4))
-  --putStrLn("z - 19: esSol pl cosa5                   = " ++show (esSol "pl" cosa5))
-  --putStrLn("z - 20: hijos pl cosa4                   = " ++show (hijos "pl" cosa4))
-  --putStrLn("z - 21: hijos l  cosa5                   = " ++show (hijos "l"  cosa5))
+
   putStrLn ""
