@@ -125,6 +125,12 @@ comparable c1 c2
 ultimo :: String -> String
 ultimo (xs:s) = s
 
+entuplar :: Stock -> [String] -> [(String,Int)]
+entuplar s p = map (asocia s) p
+  where
+    asocia :: Stock -> String -> (String,Int)
+    asocia s p = (p , retrieveStock s p)
+
 -- ****** PRUEBAS PARA LA REALIZACION DE LA PRACTICA ****** --
 --Pruebas sobre el tipo de datos Stock de la práctica
 data Stock = ROOTNODE [Stock] | INNERNODE Char [Stock] | INFONODE Int
@@ -158,13 +164,13 @@ retrieveStock :: Stock -> String -> Int
 retrieveStock (INFONODE n) ""                    = n
 retrieveStock (INFONODE n)  p                    = -1
 retrieveStock (INNERNODE c ((INFONODE n):st)) "" = n
-retrieveStock (INNERNODE c st) ""                = -2
-retrieveStock (INNERNODE c []) _                 = -3
+retrieveStock (INNERNODE c st) ""                = -1
+retrieveStock (INNERNODE c []) _                 = -1
 retrieveStock (INNERNODE c (s:st)) k@(p:ps) 
   | c == p && retrieveStock s ps < 0             = retrieveStock (INNERNODE c st) k
   | c /= p                                       = retrieveStock (INNERNODE c st) k
   | otherwise                                    = retrieveStock s ps
-retrieveStock (ROOTNODE [])     p                = -5
+retrieveStock (ROOTNODE [])     p                = -1
 retrieveStock (ROOTNODE (s:st)) k@(p:ps) 
   | retrieveStock s k < 0                        = retrieveStock (ROOTNODE st) k
   | otherwise                                    = retrieveStock s k
@@ -197,9 +203,65 @@ recorrer s@(st:stock) k@(p:ps) u
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
 listStock :: Stock -> String -> [(String,Int)]
 listStock s p = listar (bt (esSol p) (hijos p) s) ""
+  where 
+    listar :: [Stock] -> String -> [(String,Int)]
+    listar [INFONODE n] p = [(p,n)]
+    listar [] p = []
+    listar ((INFONODE n):st) p    = (p,n) : listar st p
+    listar ((INNERNODE c s):st) p = listar s (p++[c]) ++ listar st p
+    listar [ROOTNODE (s:st)] p    = listar [s] p ++ listar st p
+    esSol :: String -> Stock -> Bool
+    esSol p (INFONODE _)    
+      | p == ""   = True
+      | otherwise = False
+    esSol _  (INNERNODE c []) = False
+    esSol "" (INNERNODE c _)  = True
+    esSol k@(p:ps) (INNERNODE c [s]) = c == p && esSol ps s
+    esSol k@(p:ps) (INNERNODE c (s:st)) = c == p && esSol ps s && esSol k (INNERNODE c st)
+    esSol p (ROOTNODE [])     = False
+    esSol p (ROOTNODE [s])    = esSol p s 
+    esSol p (ROOTNODE (s:st)) = esSol p s && esSol p (ROOTNODE st)
+    hijos :: String -> Stock -> [Stock]  
+    hijos p (INFONODE  n)         
+      | p == ""   = [INFONODE n] 
+      | otherwise = []
+    hijos p (INNERNODE c [])       = []
+    hijos "" (INNERNODE c (s:st))  = INNERNODE c (hijos "" s) : hijos "" (INNERNODE c st)
+    hijos k@(p:ps) (INNERNODE c (s:st)) 
+      | p == c && hijos ps s /= [] = INNERNODE c (hijos ps s) : hijos k (INNERNODE c st)
+      | otherwise                  = hijos k (INNERNODE c st)
+    hijos p (ROOTNODE [])          = [] 
+    hijos k@(p:ps) (ROOTNODE (i@(INNERNODE c s):st)) 
+      | c == p && hijos k i /= []  = ROOTNODE (hijos k i) : hijos k (ROOTNODE st)
+      | otherwise                  = hijos k (ROOTNODE st) 
 
 listStock2 :: Stock -> String -> [Stock]
 listStock2 s p = bt (esSol p) (hijos p) s
+  where 
+    esSol :: String -> Stock -> Bool
+    esSol p (INFONODE _)    
+      | p == ""   = True
+      | otherwise = False
+    esSol _  (INNERNODE c []) = False
+    esSol "" (INNERNODE c _)  = True
+    esSol k@(p:ps) (INNERNODE c [s]) = c == p && esSol ps s
+    esSol k@(p:ps) (INNERNODE c (s:st)) = c == p && esSol ps s && esSol k (INNERNODE c st)
+    esSol p (ROOTNODE [])     = False
+    esSol p (ROOTNODE [s])    = esSol p s 
+    esSol p (ROOTNODE (s:st)) = esSol p s && esSol p (ROOTNODE st)
+    hijos :: String -> Stock -> [Stock]  
+    hijos p (INFONODE  n)         
+      | p == ""   = [INFONODE n] 
+      | otherwise = []
+    hijos p (INNERNODE c [])       = []
+    hijos "" (INNERNODE c (s:st))  = INNERNODE c (hijos "" s) : hijos "" (INNERNODE c st)
+    hijos k@(p:ps) (INNERNODE c (s:st)) 
+      | p == c && hijos ps s /= [] = INNERNODE c (hijos ps s) : hijos k (INNERNODE c st)
+      | otherwise                  = hijos k (INNERNODE c st)
+    hijos p (ROOTNODE [])          = [] 
+    hijos k@(p:ps) (ROOTNODE (i@(INNERNODE c s):st)) 
+      | c == p && hijos k i /= []  = ROOTNODE (hijos k i) : hijos k (ROOTNODE st)
+      | otherwise                  = hijos k (ROOTNODE st) 
 
 -- FUNCIÓN GENÉRICA DE BACKTRACKING -- 
 -- eS = funcion solucion
@@ -210,47 +272,19 @@ bt    eS             c             n
   | eS n      = [n]
   | otherwise = concat (map (bt eS c) (c n))
 
-
-listar :: [Stock] -> String -> [(String,Int)]
-listar [INFONODE n] p = [(p,n)]
-listar [] p = []
-listar ((INFONODE n):st) p    = (p,n) : listar st p
-listar ((INNERNODE c s):st) p = listar s (p++[c]) ++ listar st p
-listar [ROOTNODE (s:st)] p    = listar [s] p ++ listar st p
-  
-entuplar :: Stock -> [String] -> [(String,Int)]
-entuplar s p = map (asocia s) p
-  where
-    asocia :: Stock -> String -> (String,Int)
-    asocia s p = (p , retrieveStock s p)
-    
-esSol :: String -> Stock -> Bool
-esSol p (INFONODE _)    
-  | p == ""   = True
-  | otherwise = False
-esSol _  (INNERNODE c []) = False
-esSol "" (INNERNODE c _)  = True
-esSol k@(p:ps) (INNERNODE c [s]) = c == p && esSol ps s
-esSol k@(p:ps) (INNERNODE c (s:st)) = c == p && esSol ps s && esSol k (INNERNODE c st)
-esSol p (ROOTNODE [])     = False
-esSol p (ROOTNODE [s])    = esSol p s 
-esSol p (ROOTNODE (s:st)) = esSol p s && esSol p (ROOTNODE st)
-
-hijos :: String -> Stock -> [Stock]  
-hijos p (INFONODE  n)         
+hijos2 :: String -> Stock -> [Stock]  
+hijos2 p (INFONODE  n)         
   | p == ""   = [INFONODE n] 
   | otherwise = []
-hijos p (INNERNODE c [])       = []
-hijos "" (INNERNODE c (s:st))  = INNERNODE c (hijos "" s) : hijos "" (INNERNODE c st)
-hijos k@(p:ps) (INNERNODE c (s:st)) 
-  | p == c && hijos ps s /= [] = INNERNODE c (hijos ps s) : hijos k (INNERNODE c st)
-  | otherwise                  = hijos k (INNERNODE c st)
-hijos p (ROOTNODE [])          = [] 
-hijos k@(p:ps) (ROOTNODE (i@(INNERNODE c s):st)) 
-  | c == p && hijos k i /= []  = ROOTNODE (hijos k i) : hijos k (ROOTNODE st)
-  | otherwise                  = hijos k (ROOTNODE st) 
-  
-
+hijos2 p (INNERNODE c [])       = []
+hijos2 "" (INNERNODE c (s:st))  = INNERNODE c (hijos2 "" s) : hijos2 "" (INNERNODE c st)
+hijos2 k@(p:ps) (INNERNODE c (s:st)) 
+  | p == c && hijos2 ps s /= [] = INNERNODE c (hijos2 ps s) : hijos2 k (INNERNODE c st)
+  | otherwise                  = hijos2 k (INNERNODE c st)
+hijos2 p (ROOTNODE [])          = [] 
+hijos2 k@(p:ps) (ROOTNODE (i@(INNERNODE c s):st)) 
+  | c == p && hijos2 k i /= []  = ROOTNODE (hijos2 k i) : hijos2 k (ROOTNODE st)
+  | otherwise                  = hijos2 k (ROOTNODE st) 
 
 -- *************** STOCKS DE PRUEBAS ********************** --
 cosa  = ROOTNODE [INNERNODE 'c' [INNERNODE 'o' [INNERNODE 's' [INNERNODE 'a' [INFONODE 5]]]]]
@@ -320,7 +354,7 @@ main = do
   putStrLn("z - 14: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
   putStrLn("z - 15: listStock2 cosa4 pa              = " ++show (listStock cosa4 "plato hondo"))
   putStrLn("z - 16: listStock2 cosa4 pa              = " ++show (listStock2 cosa4 "pa"))
-  putStrLn("z - 17: hijos cosa4 pa                   = " ++show (hijos "plato" cosa4 ))
+  putStrLn("z - 17: hijos cosa4 pa                   = " ++show (hijos2 "plato" cosa4 ))
   putStrLn ""
-
+  putStrLn("z - 18: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock cosa4 "plato hondo 1"))
   putStrLn ""

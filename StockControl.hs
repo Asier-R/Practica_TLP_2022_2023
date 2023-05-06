@@ -22,13 +22,13 @@ retrieveStock :: Stock         -> String -> Int
 retrieveStock (INFONODE n) ""                    = n
 retrieveStock (INFONODE n)  p                    = -1
 retrieveStock (INNERNODE c ((INFONODE n):st)) "" = n
-retrieveStock (INNERNODE c st) ""                = -2
-retrieveStock (INNERNODE c []) _                 = -3
+retrieveStock (INNERNODE c st) ""                = -1
+retrieveStock (INNERNODE c []) _                 = -1
 retrieveStock (INNERNODE c (s:st)) k@(p:ps) 
   | c == p && retrieveStock s ps < 0             = retrieveStock (INNERNODE c st) k
   | c /= p                                       = retrieveStock (INNERNODE c st) k
   | otherwise                                    = retrieveStock s ps
-retrieveStock (ROOTNODE [])     p                = -5
+retrieveStock (ROOTNODE [])     p                = -1
 retrieveStock (ROOTNODE (s:st)) k@(p:ps) 
   | retrieveStock s k < 0                        = retrieveStock (ROOTNODE st) k
   | otherwise                                    = retrieveStock s k
@@ -71,7 +71,38 @@ recorrer s@(st:stock) k@(p:ps) u
 -- FUNCIÓN QUE DEVUELVE UNA LISTA PARES PRODUCTO-EXISTENCIA --
 -- DEL CATÁLOGO QUE COMIENZAN POR LA CADENA PREFIJO p       --
 listStock :: Stock -> String -> [(String,Int)]
-listStock s p = [("SIN DESARROLLAR",0)]
+listStock s p = listar (bt (esSol p) (hijos p) s) ""
+  where 
+    listar :: [Stock] -> String -> [(String,Int)]
+    listar [INFONODE n] p = [(p,n)]
+    listar [] p = []
+    listar ((INFONODE n):st) p    = (p,n) : listar st p
+    listar ((INNERNODE c s):st) p = listar s (p++[c]) ++ listar st p
+    listar [ROOTNODE (s:st)] p    = listar [s] p ++ listar st p
+    esSol :: String -> Stock -> Bool
+    esSol p (INFONODE _)    
+      | p == ""   = True
+      | otherwise = False
+    esSol _  (INNERNODE c []) = False
+    esSol "" (INNERNODE c _)  = True
+    esSol k@(p:ps) (INNERNODE c [s]) = c == p && esSol ps s
+    esSol k@(p:ps) (INNERNODE c (s:st)) = c == p && esSol ps s && esSol k (INNERNODE c st)
+    esSol p (ROOTNODE [])     = False
+    esSol p (ROOTNODE [s])    = esSol p s 
+    esSol p (ROOTNODE (s:st)) = esSol p s && esSol p (ROOTNODE st)
+    hijos :: String -> Stock -> [Stock]  
+    hijos p (INFONODE  n)         
+      | p == ""   = [INFONODE n] 
+      | otherwise = []
+    hijos p (INNERNODE c [])       = []
+    hijos "" (INNERNODE c (s:st))  = INNERNODE c (hijos "" s) : hijos "" (INNERNODE c st)
+    hijos k@(p:ps) (INNERNODE c (s:st)) 
+      | p == c && hijos ps s /= [] = INNERNODE c (hijos ps s) : hijos k (INNERNODE c st)
+      | otherwise                  = hijos k (INNERNODE c st)
+    hijos p (ROOTNODE [])          = [] 
+    hijos k@(p:ps) (ROOTNODE (i@(INNERNODE c s):st)) 
+      | c == p && hijos k i /= []  = ROOTNODE (hijos k i) : hijos k (ROOTNODE st)
+      | otherwise                  = hijos k (ROOTNODE st) 
 
 -- FUNCIÓN GENÉRICA DE BACKTRACKING --
 bt :: (a -> Bool) -> (a -> [a]) -> a -> [a]
