@@ -1,3 +1,10 @@
+--module Main where
+
+import System.IO
+import Data.Char
+import Text.Read
+
+
 --import Distribution.Simple.Command (OptDescr(BoolOpt))
 
 --{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
@@ -177,17 +184,18 @@ retrieveStock (ROOTNODE (s:st)) k@(p:ps)
 
 --Funcion que actualiza el stock
 updateStock :: Stock         -> String -> Int -> Stock
-updateStock (INFONODE  n)          ""  u      = INFONODE  u
+updateStock (INFONODE  n)          ""       u = INFONODE  u
 updateStock (ROOTNODE  [])         k@(p:ps) u = ROOTNODE    [ updateStock (INNERNODE p []) ps u ]
-updateStock (INNERNODE c [])       "" u       = INNERNODE c [INFONODE  u]
+updateStock (INNERNODE c [])       ""       u = INNERNODE c [INFONODE  u]
 updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNERNODE p []) ps u ]
+updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ updateStock st "" u ]
 updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
-updateStock (ROOTNODE  r@(s:st))   k@(p:ps) u = ROOTNODE    (recorrer r k u)
+updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    (recorrer r k u)
+updateStock s p u = s
 recorrer :: [Stock] -> String -> Int -> [Stock]
+recorrer [] ""       u = [INFONODE u]
 recorrer [] k@(p:ps) u = [updateStock (INNERNODE p []) ps u]
 recorrer s@(st:stock) k@(p:ps) u
-  |  null s && k == ""     =  [INFONODE u]
-  |  null s && k /= ""     =  [updateStock (INNERNODE p []) ps u]
   |  compara st [p] ==  0  =  updateStock st ps u : stock
   |  compara st [p] ==  1  =  st : recorrer stock k u 
   |  compara st [p] == -1  =  updateStock (INNERNODE p []) ps u : s
@@ -295,68 +303,106 @@ cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [IN
 cosa5 = ROOTNODE [INNERNODE 'l' [INNERNODE 'i' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'e' [INNERNODE 'r' [INNERNODE 'n' [INNERNODE 'a' [INFONODE 999]]]]]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 -- ******************************************************** --
 
+fileName :: FilePath
+fileName = "stock.txt"
+
+saveStock :: Stock -> IO()
+saveStock s = writeFile fileName (show s)
+
+loadStock :: IO ()
+loadStock = do { fcontent <- readFile' fileName;
+                 let flines = (lines fcontent) in
+                   case flines of
+                     [] -> mainLoop createStock
+                     s  -> mainLoop (read (head s)::Stock)
+               }
+
+compra :: Stock -> String -> Int -> IO ()
+compra s p u = let us = retrieveStock s p in do {
+                 if ( us == -1 )
+                   then mainLoop (updateStock s p u);
+                   else mainLoop (updateStock s p (us+u));
+               }
+
+mainLoop :: Stock -> IO ()
+mainLoop s = do { 
+  putStrLn ("Stock: "++show s);
+  putStrLn ( show (retrieveStock s "hamburger"));
+  --compra s "hamburger" 14;
+  saveStock s;
+}
 
 --Programa principal
 main = do
-  putStrLn("00 - Prueba inicio, numero impares del 10 al 20: " ++ show (filter odd [10..20]))
-  putStrLn("01 - sumar 2 3: "                                  ++ show (sumar 2 3))
-  putStrLn("02 - sumaPre 5: "                                  ++ show (sumaPre 5))
-  putStrLn("03 - fiboNum 15: "                                 ++ show (fiboNum 15))
-  putStrLn("04 - fiboList 15: "                                ++ show (fiboList 15))
-  putStrLn("05 - sumar2 [1,2,3]: "                             ++ show (sumar2 [1,2,3]))
-  putStrLn("06 - duplicaCabeza1 [2,3]: "                       ++ show (duplicaCabeza1 [2,3]))
-  putStrLn("06 - duplicaCabeza1 texto: "                       ++ show (duplicaCabeza1 "texto"))
-  putStrLn("07 - duplicaCabeza2 [1,3]: "                       ++ show (duplicaCabeza2 [1,3]))
-  putStrLn("08 - dividir 5 2: "                                ++ show (dividir 5 2))
-  putStrLn("09 - sumar3 5 2: "                                 ++ show (sumar3 5 2))
-  putStrLn("10 - sumarle4 1: "                                 ++ show (sumarle4 1))
-  putStrLn("11 - lstcnc: "                                     ++ show lstcnc)
-  putStrLn("12 - zplst: "                                      ++ show zplst)
-  putStrLn("13 - zplst2: "                                     ++ show zplst2)
-  putStrLn("14 - unzipi zplst: "                               ++ show (unzipi zplst))
-  putStrLn("15 - map sumarle4 lstcnc: "                        ++ show lstMapped)
-  putStrLn("16 - mapi sumarle4 lstcnc: "                       ++ show lstMapped2)
-  putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show lstMapped3)
-  putStrLn("17 - primos: "                                     ++ show primos) -- Solo los primos entre 2 y 100
-  putStrLn("18 - polidivisible 1024: "                         ++ show (polidivisible 1024))
-  putStrLn("19 - polidivisible 1025: "                         ++ show (polidivisible 1025))
-  putStrLn("20 - reescribe POTATO reglas: "                    ++ show (reescribe "POTATO" reglas))
-  putStrLn("21 - reescribe SALUDO reglas: "                    ++ show (reescribe "SALUDO" reglas))
-  putStrLn("22 - reescritura reglas [...]: "                   ++ show (reescritura reglas ["SALUDO","EJECUTANDO","DESPEDIDA"]))
-  putStrLn("23 - existencia2 [-1,6,5]: "                       ++ show (existencia2 [-1,6,5]))
-  putStrLn("24 - ultimo patatas: "                             ++ show (ultimo "patatas"))
-  putStrLn ""
+  --loadStock
+  --putStrLn("00 - Prueba inicio, numero impares del 10 al 20: " ++ show (filter odd [10..20]))
+  --putStrLn("01 - sumar 2 3: "                                  ++ show (sumar 2 3))
+  --putStrLn("02 - sumaPre 5: "                                  ++ show (sumaPre 5))
+  --putStrLn("03 - fiboNum 15: "                                 ++ show (fiboNum 15))
+  --putStrLn("04 - fiboList 15: "                                ++ show (fiboList 15))
+  --putStrLn("05 - sumar2 [1,2,3]: "                             ++ show (sumar2 [1,2,3]))
+  --putStrLn("06 - duplicaCabeza1 [2,3]: "                       ++ show (duplicaCabeza1 [2,3]))
+  --putStrLn("06 - duplicaCabeza1 texto: "                       ++ show (duplicaCabeza1 "texto"))
+  --putStrLn("07 - duplicaCabeza2 [1,3]: "                       ++ show (duplicaCabeza2 [1,3]))
+  --putStrLn("08 - dividir 5 2: "                                ++ show (dividir 5 2))
+  --putStrLn("09 - sumar3 5 2: "                                 ++ show (sumar3 5 2))
+  --putStrLn("10 - sumarle4 1: "                                 ++ show (sumarle4 1))
+  --putStrLn("11 - lstcnc: "                                     ++ show lstcnc)
+  --putStrLn("12 - zplst: "                                      ++ show zplst)
+  --putStrLn("13 - zplst2: "                                     ++ show zplst2)
+  --putStrLn("14 - unzipi zplst: "                               ++ show (unzipi zplst))
+  --putStrLn("15 - map sumarle4 lstcnc: "                        ++ show lstMapped)
+  --putStrLn("16 - mapi sumarle4 lstcnc: "                       ++ show lstMapped2)
+  --putStrLn("16 - map (\\x -> x*x) [1..10]: "                   ++ show lstMapped3)
+  --putStrLn("17 - primos: "                                     ++ show primos) -- Solo los primos entre 2 y 100
+  --putStrLn("18 - polidivisible 1024: "                         ++ show (polidivisible 1024))
+  --putStrLn("19 - polidivisible 1025: "                         ++ show (polidivisible 1025))
+  --putStrLn("20 - reescribe POTATO reglas: "                    ++ show (reescribe "POTATO" reglas))
+  --putStrLn("21 - reescribe SALUDO reglas: "                    ++ show (reescribe "SALUDO" reglas))
+  --putStrLn("22 - reescritura reglas [...]: "                   ++ show (reescritura reglas ["SALUDO","EJECUTANDO","DESPEDIDA"]))
+  --putStrLn("23 - existencia2 [-1,6,5]: "                       ++ show (existencia2 [-1,6,5]))
+  --putStrLn("24 - ultimo patatas: "                             ++ show (ultimo "patatas"))
+  --putStrLn ""
 
-  putStrLn("z - 1: retrieveStock cosa  'plato'       = " ++ show ( retrieveStock2 cosa  "plato"))
-  putStrLn("z - 2: retrieveStock cosa  'cosa'        = " ++ show ( retrieveStock2 cosa  "cosa"))
-  putStrLn("z - 3: retrieveStock cosa2 'plato'       = " ++ show ( retrieveStock2 cosa2 "plato"))
-  putStrLn("z - 4: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock2 cosa2 "plato hondo"))
-  putStrLn("z - 5: retrieveStock cosa2 'platob'      = " ++ show ( retrieveStock2 cosa2 "platob"))
-  putStrLn("z - 6: retrieveStock cosa  'cosa '       = " ++ show ( retrieveStock2 cosa  "cosa "))
-  putStrLn("z - 7: retrieveStock cosa2 'plato '      = " ++ show ( retrieveStock2 cosa2 "plato "))
-  putStrLn("z - 8: retrieveStock cosa2 'platon'      = " ++ show ( retrieveStock2 cosa2 "platon"))
-  putStrLn("z - 9: comparable                        = " ++ show( comparable 'z' 'd' ))
-  putStrLn("z - 10: head                             = " ++ show( head [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
-  putStrLn("z - 11: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
-  putStrLn("z - 12: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []]] ))
-  putStrLn("z - 13: drop                             = " ++ show( drop 1 (drop 1 [ROOTNODE [INNERNODE 'b' []]] )) )
-  putStrLn("z - 14: head                             = " ++ show( head [cosa] ))
-  putStrLn("z - 15: retrieveStock cosa3 'platon'     = " ++ show ( retrieveStock cosa3 "platon"))
-  putStrLn ""
+  --putStrLn("z - 1: retrieveStock cosa  'plato'       = " ++ show ( retrieveStock2 cosa  "plato"))
+  --putStrLn("z - 2: retrieveStock cosa  'cosa'        = " ++ show ( retrieveStock2 cosa  "cosa"))
+  --putStrLn("z - 3: retrieveStock cosa2 'plato'       = " ++ show ( retrieveStock2 cosa2 "plato"))
+  --putStrLn("z - 4: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock2 cosa2 "plato hondo"))
+  --putStrLn("z - 5: retrieveStock cosa2 'platob'      = " ++ show ( retrieveStock2 cosa2 "platob"))
+  --putStrLn("z - 6: retrieveStock cosa  'cosa '       = " ++ show ( retrieveStock2 cosa  "cosa "))
+  --putStrLn("z - 7: retrieveStock cosa2 'plato '      = " ++ show ( retrieveStock2 cosa2 "plato "))
+  --putStrLn("z - 8: retrieveStock cosa2 'platon'      = " ++ show ( retrieveStock2 cosa2 "platon"))
+  --putStrLn("z - 9: comparable                        = " ++ show( comparable 'z' 'd' ))
+  --putStrLn("z - 10: head                             = " ++ show( head [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
+  --putStrLn("z - 11: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
+  --putStrLn("z - 12: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []]] ))
+  --putStrLn("z - 13: drop                             = " ++ show( drop 1 (drop 1 [ROOTNODE [INNERNODE 'b' []]] )) )
+  --putStrLn("z - 14: head                             = " ++ show( head [cosa] ))
+  --putStrLn("z - 15: retrieveStock cosa3 'platon'     = " ++ show ( retrieveStock cosa3 "platon"))
+  --putStrLn ""
 
-  putStrLn("z - 9: updateStock (ROOTNODE []) 'plato' = " ++ show ( updateStock (ROOTNODE []) "plato" 8))
-  putStrLn("z - 10: updateStock cosa 'alato'         = " ++ show ( updateStock cosa "alato" 88))
-  putStrLn("z - 11: updateStock cosa 'plato'         = " ++ show ( updateStock cosa "plato" 99))
-  putStrLn("z - 12: retrieveStock cosa 'plato'       = " ++ show ( retrieveStock (updateStock cosa "plato" 99) "plato" ))
-  putStrLn ""
+  --putStrLn("z - 9: updateStock (ROOTNODE []) 'plato' = " ++ show ( updateStock (ROOTNODE []) "plato" 8))
+  --putStrLn("z - 10: updateStock cosa 'alato'         = " ++ show ( updateStock cosa "alato" 88))
+  --putStrLn("z - 11: updateStock cosa 'plato'         = " ++ show ( updateStock cosa "plato" 99))
+  --putStrLn("z - 12: retrieveStock cosa 'plato'       = " ++ show ( retrieveStock (updateStock cosa "plato" 99) "plato" ))
+  --putStrLn ""
 
-  putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
-  putStrLn ""
-  putStrLn("z - 14: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
-  putStrLn("z - 15: listStock2 cosa4 pa              = " ++show (listStock cosa4 "plato hondo"))
-  putStrLn("z - 16: listStock2 cosa4 pa              = " ++show (listStock2 cosa4 "pa"))
-  putStrLn("z - 17: hijos cosa4 pa                   = " ++show (hijos2 "plato" cosa4 ))
-  putStrLn ""
-  putStrLn("z - 18: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock cosa4 "plato hondo 1"))
-  putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show ( updateStock cosa5 "zozobra" 10))
-  putStrLn ""
+  --putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
+  --putStrLn ""
+  --putStrLn("z - 14: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
+  --putStrLn("z - 15: listStock2 cosa4 pa              = " ++show (listStock cosa4 "plato hondo"))
+  --putStrLn("z - 16: listStock2 cosa4 pa              = " ++show (listStock2 cosa4 "pa"))
+  --putStrLn("z - 17: hijos cosa4 pa                   = " ++show (hijos2 "plato" cosa4 ))
+  --putStrLn ""
+  --putStrLn("z - 18: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock cosa4 "plato hondo 1"))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "zor" 10))
+    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "linterna" 90))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock ( updateStock cosa5 "z" 10) "zor" 10))
+  --putStrLn ""
+
+    --putStrLn("z - Test01 = " ++show ( updateStock createStock "hamburger" 14 ))
+    
+    --mainLoop (updateStock createStock "hamburger" 14)
+    --mainLoop (updateStock createStock "mango" 20)
+
+    --writeFile fileName (show ( mainLoop s))
