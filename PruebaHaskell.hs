@@ -1,3 +1,4 @@
+--import Distribution.Simple.Command (OptDescr(BoolOpt))
 
 --{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 --{-# HLINT ignore "Redundant bracket" #-}
@@ -51,7 +52,7 @@ lstcnc = lista1 ++ lista2
 --Combinar listas en tuplas (ver pag 69 del texto base)
 zplst = zip lista1 lista2
 --Lo que hace la función zip (el orden es importante o siempre devolveria lista vacía)
-zipi (x:xs) (y:ys) = (x,y) : (zipi xs ys)
+zipi (x:xs) (y:ys) = (x,y) : zipi xs ys
 zipi _ _ = []
 lista3 = [1,2,3]
 lista4 = [4,5] --la lista más corta define el tamaño de la lista de tuplas
@@ -69,7 +70,7 @@ unzipi xs = unzipiAux xs ([],[])  --Aquí se define la función interna que ser�
 lstMapped = map sumarle4 lstcnc
 --Lo que hace map (ver pag 70 del texto base)
 mapi _ [] = [] --Si la lista está vacia no importa la función, siempre devuelve la lista vacia.
-mapi f (x:xs) = (f x) : (mapi f xs)
+mapi f (x:xs) = f x : mapi f xs
 lstMapped2 = mapi sumarle4 lstcnc
 --Para obtener los diez primeros cuadrados
 lstMapped3 = map (\x -> x*x) [1..10] --la barra se utiliza cuando no queremos nombrar la función => funciones anónimas
@@ -85,7 +86,7 @@ polidivisible n
     | otherwise = ipolidivisible n (long n)
     where
         ipolidivisible _ 1 = True
-        ipolidivisible n lon = ((mod n lon) == 0) && (ipolidivisible (div n 10) (lon-1))
+        ipolidivisible n lon = (mod n lon == 0) && ipolidivisible (div n 10) (lon-1)
         long n
             | n< 10 = 1
             | otherwise = 1 + long (div n 10)
@@ -104,7 +105,7 @@ reescribe cad ( (ent,sal):resto )
     
 reescritura r [] = []
 reescritura r (cad:resto) 
-    | null salida = cad:( reescritura r resto )
+    | null salida = cad: reescritura r resto 
     | otherwise = reescritura r ( salida ++ resto )
     where 
         salida = reescribe cad r
@@ -117,9 +118,9 @@ existencia2 l@(x:xs)
 
 comparable :: Char -> Char -> String
 comparable c1 c2 
-  | c1 > c2 = show(c1)++" es MAYOR que "++show(c2)
-  | c1 < c2 = show(c1)++" es MENOR que "++show(c2)
-  | otherwise = show(c1)++" es IGUAL que "++show(c2)
+  | c1 > c2   = show c1 ++ " es MAYOR que " ++ show c2
+  | c1 < c2   = show c1 ++ " es MENOR que " ++ show c2
+  | otherwise = show c1 ++ " es IGUAL que " ++ show c2
 
 ultimo :: String -> String
 ultimo (xs:s) = s
@@ -223,26 +224,29 @@ entuplar s p = map (asocia s) p
     asocia s p = (p , retrieveStock s p)
     
 esSol :: String -> Stock -> Bool
-esSol _      (INFONODE _)    = False
-esSol ""     (INNERNODE c _) = True
-esSol (p:ps) (INNERNODE c _)  
-  | c == p    = True
+esSol p (INFONODE _)    
+  | p == ""   = True
   | otherwise = False
-esSol _ (ROOTNODE _)         = False
+esSol _     (INNERNODE c []) = False
+esSol ""     (INNERNODE c _) = True
+esSol (p:ps) (INNERNODE c (s:st))  
+  | c == p    = esSol ps s
+  | otherwise = False
+esSol p (ROOTNODE (s:st)) = esSol p s && esSol p (ROOTNODE st)
 
-hijos :: String -> Stock -> [Stock]
-hijos _  (INFONODE  _)                         = [] 
-hijos _  (INNERNODE chr [])                    = []
-hijos p  (INNERNODE chr ((INFONODE n):st))     = INFONODE n : hijos p (INNERNODE chr st)
-hijos "" (INNERNODE chr ((INNERNODE c s):st))  = INNERNODE c s : hijos "" (INNERNODE chr st) 
-hijos k@(p:ps) (INNERNODE chr ((INNERNODE c s):st))   
-  | c == p    = INNERNODE c s : hijos k (INNERNODE chr st)   
-  | otherwise = hijos k (INNERNODE chr st) 
-hijos _ (ROOTNODE [])      = [] 
-hijos "" (ROOTNODE ((INNERNODE c s):st))  = INNERNODE c s : hijos  "" (ROOTNODE st)  
-hijos k@(p:ps) (ROOTNODE ((INNERNODE c s):st))  
-  | c == p    = INNERNODE c s : hijos k (ROOTNODE st) 
-  | otherwise = hijos k (ROOTNODE st) 
+hijos :: String -> Stock -> [Stock]  
+hijos p (INFONODE  n)         
+  | p == ""   = [INFONODE n] 
+  | otherwise = []
+hijos p (INNERNODE c [])       = []
+hijos "" (INNERNODE c (s:st))  = INNERNODE c (hijos "" s) : hijos "" (INNERNODE c st)
+hijos k@(p:ps) (INNERNODE c (s:st)) 
+  | p == c && hijos ps s /= [] = INNERNODE c (hijos ps s) : hijos k (INNERNODE c st)
+  | otherwise                  = hijos k (INNERNODE c st)
+hijos p (ROOTNODE [])          = [] 
+hijos k@(p:ps) (ROOTNODE (i@(INNERNODE c s):st)) 
+  | c == p && hijos k i /= []  = ROOTNODE (hijos k i) : hijos k (ROOTNODE st)
+  | otherwise                  = hijos k (ROOTNODE st) 
   
 
 
@@ -252,6 +256,8 @@ cosa2 = ROOTNODE [INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [IN
 cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
 cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa5 = INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]
+
+cosa6 = ROOTNODE [INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 -- ******************************************************** --
 
 
@@ -310,18 +316,20 @@ main = do
   putStrLn ""
 
   putStrLn("z - 13: entuplar                         = " ++show (entuplar cosa2 ["plato","platon","plato hondo"] ))
-  putStrLn("z - 14: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
-  putStrLn("z - 15: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
-  putStrLn("z - 16: listStock cosa4 pl               = " ++show (listStock cosa4 "pl"))
-  putStrLn("z - 16: listStock2 cosa4 pl               = " ++show (listStock2 cosa4 "pl"))
+  --putStrLn("z - 14: listStock cosa4 g                = " ++show (listStock cosa4 "g" ))
+  --putStrLn("z - 15: listStock cosa4 p                = " ++show (listStock cosa4 "p" ))
+  --putStrLn("z - 16: listStock cosa4 pl               = " ++show (listStock cosa4 "pl"))
+  --putStrLn("z - 16: listStock2 cosa4 pl               = " ++show (listStock2 cosa4 "pl"))
   putStrLn ""
-  putStrLn("z - 17: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
-  putStrLn("z - 17: listStock2 cosa4 pa               = " ++show (listStock2 cosa4 "pa"))
-  putStrLn("z - 17: hijos cosa4 pa = " ++show (esSol "pa" (head (hijos "pa" cosa4 ))))
-  putStrLn("z - 17: hijos cosa4 pa = " ++show (head (hijos "pa" cosa4 )))
+  --putStrLn("z - 17: listStock cosa4 ''               = " ++show (listStock cosa4 ""))
+  --putStrLn("z - 17: listStock2 cosa4 pa               = " ++show (listStock2 cosa4 "pa"))
+  putStrLn("z - 17: hijos cosa4 pa = " ++show ( hijos "plato ho" cosa4 ))
+  --putStrLn("z - 17: hijos cosa4 pa = " ++show ( hijos cosa6 ))
+  putStrLn("z - 17: hijos cosa4 pa = " ++show (esSol "pl" (head (hijos "pl" cosa4 ))))
+  --putStrLn("z - 17: hijos cosa4 pa = " ++show (head (hijos "pa" cosa4 )))
   putStrLn ""
-  putStrLn("z - 18: (bt (esSol p) (hijos p) s)       = " ++show (bt (esSol "pl") (hijos "pl") cosa4))
-  putStrLn("z - 19: esSol pl cosa5                   = " ++show (esSol "pl" cosa5))
-  putStrLn("z - 20: hijos pl cosa4                   = " ++show (hijos "pl" cosa4))
-  putStrLn("z - 21: hijos l  cosa5                   = " ++show (hijos "l"  cosa5))
+  --putStrLn("z - 18: (bt (esSol p) (hijos p) s)       = " ++show (bt (esSol "pl") (hijos "pl") cosa4))
+  --putStrLn("z - 19: esSol pl cosa5                   = " ++show (esSol "pl" cosa5))
+  --putStrLn("z - 20: hijos pl cosa4                   = " ++show (hijos "pl" cosa4))
+  --putStrLn("z - 21: hijos l  cosa5                   = " ++show (hijos "l"  cosa5))
   putStrLn ""
