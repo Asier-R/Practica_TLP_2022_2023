@@ -43,12 +43,14 @@ retrieveStock (ROOTNODE (s:st)) k@(p:ps)
 updateStock :: Stock         -> String -> Int -> Stock
 updateStock (INFONODE  n)          ""       u = INFONODE  u
 updateStock (ROOTNODE  [])         k@(p:ps) u = ROOTNODE    [ updateStock (INNERNODE p []) ps u ]
-updateStock (INNERNODE c [])       ""       u = INNERNODE c [INFONODE  u]
+updateStock (INNERNODE c [])       ""       u = INNERNODE c [ INFONODE  u ]
 updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNERNODE p []) ps u ]
-updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ updateStock st "" u ]
-updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
-updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    (recorrer r k u)
-updateStock (INNERNODE c r@(s:st)) ""       u = INNERNODE c (recorrer r "" u) 
+updateStock (INNERNODE c [INFONODE n]) ""   u = INNERNODE c [ INFONODE u ]
+updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ INFONODE u, st ]
+updateStock (INNERNODE c [st])     k@(p:ps) u = INNERNODE c ( recorrer [st] k u )        
+updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c ( recorrer r k u )         
+updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    ( recorrer r k u )
+updateStock (INNERNODE c r@(s:st)) ""       u = INNERNODE c ( recorrer r "" u ) 
 updateStock s p u = s
 recorrer :: [Stock] -> String -> Int -> [Stock]
 recorrer [] ""       u = [INFONODE u]
@@ -65,7 +67,7 @@ recorrer s@(st:stock) k@(p:ps) u
   compara (INNERNODE c st) (p:ps)
     | c == p    =  0
     | c < p     =  1
-    | otherwise = -1 
+    | otherwise = -1  
 
 
 -----------------------

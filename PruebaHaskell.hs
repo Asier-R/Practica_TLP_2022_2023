@@ -186,12 +186,14 @@ retrieveStock (ROOTNODE (s:st)) k@(p:ps)
 updateStock :: Stock         -> String -> Int -> Stock
 updateStock (INFONODE  n)          ""       u = INFONODE  u
 updateStock (ROOTNODE  [])         k@(p:ps) u = ROOTNODE    [ updateStock (INNERNODE p []) ps u ]
-updateStock (INNERNODE c [])       ""       u = INNERNODE c [INFONODE  u]
+updateStock (INNERNODE c [])       ""       u = INNERNODE c [ INFONODE  u ]
 updateStock (INNERNODE c [])       k@(p:ps) u = INNERNODE c [ updateStock (INNERNODE p []) ps u ]
-updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ updateStock st "" u ]
-updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c (recorrer r k u)         
-updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    (recorrer r k u)
-updateStock (INNERNODE c r@(s:st)) ""       u = INNERNODE c (recorrer r "" u) 
+updateStock (INNERNODE c [INFONODE n]) ""   u = INNERNODE c [ INFONODE u ]
+updateStock (INNERNODE c [st])     ""       u = INNERNODE c [ INFONODE u, st ]
+updateStock (INNERNODE c [st])     k@(p:ps) u = INNERNODE c ( recorrer [st] k u )        
+updateStock (INNERNODE c r@(s:st)) k@(p:ps) u = INNERNODE c ( recorrer r k u )         
+updateStock (ROOTNODE    r@(s:st)) k@(p:ps) u = ROOTNODE    ( recorrer r k u )
+updateStock (INNERNODE c r@(s:st)) ""       u = INNERNODE c ( recorrer r "" u ) 
 updateStock s p u = s
 recorrer :: [Stock] -> String -> Int -> [Stock]
 recorrer [] ""       u = [INFONODE u]
@@ -304,6 +306,8 @@ cosa3 = INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o
 cosa4 = ROOTNODE [INNERNODE 'g' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 1]]],INNERNODE 'i' [INNERNODE 'p' [INNERNODE 'i' [INFONODE 2]]]],INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 19]]],INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9, INNERNODE 'n' [INFONODE 99], INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]]]
 cosa5 = ROOTNODE [INNERNODE 'a' [INFONODE 1],INNERNODE 'l' [INNERNODE 'i' [INNERNODE 'n' [INNERNODE 't' [INNERNODE 'e' [INNERNODE 'r' [INNERNODE 'n' [INNERNODE 'a' [INFONODE 999]]]]]]]],INNERNODE 'p' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'o' [INFONODE 9],INNERNODE 'o' [INNERNODE 'n' [INFONODE 99]],INNERNODE 'o' [INNERNODE ' ' [INNERNODE 'h' [INNERNODE 'o' [INNERNODE 'n' [INNERNODE 'd' [INNERNODE 'o' [INFONODE 2]]]]]]]]]]],INNERNODE 'z' [INFONODE 10,INNERNODE 'o' [INNERNODE 'r' [INFONODE 10]]]]
 cosa6 = ROOTNODE [INNERNODE 'a' [INFONODE 1], INNERNODE 'c' [INFONODE 3, INNERNODE 'a' [INFONODE 33]],INNERNODE 'z' [INFONODE 10,INNERNODE 'o' [INNERNODE 'r' [INFONODE 10]]]]
+cosa7 = ROOTNODE [INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'a' [INNERNODE 's' [INFONODE 6,INNERNODE ' ' [INNERNODE 'a' [INNERNODE 'z' [INNERNODE 'u' [INNERNODE 'l' [INNERNODE 'e' [INNERNODE 's' [INFONODE 3]]]]]]],INNERNODE '_' [INNERNODE 'a' [INNERNODE 'm' [INNERNODE 'a' [INNERNODE 'r' [INNERNODE 'i' [INNERNODE 'l' [INNERNODE 'l' [INNERNODE 'a' [INNERNODE 's' [INFONODE 7]]]]]]]]],INNERNODE 'f' [INNERNODE 'r' [INNERNODE 'i' [INNERNODE 't' [INNERNODE 'a' [INNERNODE 's' [INFONODE 66]]]]]]],INNERNODE 'a' [INFONODE 1]],INNERNODE 'z' [INNERNODE 'a' [INFONODE 4]]]]]]]]]
+cosa8 = ROOTNODE [INNERNODE 'p' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'a' [INNERNODE 't' [INNERNODE 'a' [INNERNODE 's' [INFONODE 6]]]]]]]]
 -- ******************************************************** --
 
 fileName :: FilePath
@@ -375,7 +379,9 @@ main = do
   --putStrLn("z - 6: retrieveStock cosa  'cosa '       = " ++ show ( retrieveStock2 cosa  "cosa "))
   --putStrLn("z - 7: retrieveStock cosa2 'plato '      = " ++ show ( retrieveStock2 cosa2 "plato "))
   --putStrLn("z - 8: retrieveStock cosa2 'platon'      = " ++ show ( retrieveStock2 cosa2 "platon"))
-  --putStrLn("z - 9: comparable                        = " ++ show( comparable 'z' 'd' ))
+    --putStrLn("z - 9: comparable                        = " ++ show( comparable '-' 'a' ))
+    --putStrLn("z - 9: comparable                        = " ++ show(  (ord '-')  ))
+    --putStrLn("z - 9: comparable                        = " ++ show(  (ord 'a')  ))
   --putStrLn("z - 10: head                             = " ++ show( head [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   --putStrLn("z - 11: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []], INNERNODE 'a' []] ))
   --putStrLn("z - 12: drop                             = " ++ show( drop 1 [ROOTNODE [INNERNODE 'b' []]] ))
@@ -400,10 +406,10 @@ main = do
   --putStrLn("z - 18: retrieveStock cosa2 'plato hondo' = " ++ show ( retrieveStock cosa4 "plato hondo 1"))
     --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "zor" 10))
     --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa5 "linterna" 90))
-    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "a" 2))
-    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "c" 2))
-    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "z" 2))
-    putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock ( updateStock cosa5 "z" (-9)) "zor" (-98)))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "a" 2))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "c" 2))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock cosa6 "z" 2))
+    --putStrLn("z - 19: retrieveStock cosa2 'plato hondo' = " ++ show( updateStock ( updateStock cosa5 "z" (-9)) "zor" (-98)))
   --putStrLn ""
 
     --putStrLn("z - Test01 = " ++show ( updateStock createStock "hamburger" 14 ))
@@ -412,3 +418,20 @@ main = do
     --mainLoop (updateStock createStock "mango" 20)
 
     --writeFile fileName (show ( mainLoop s))
+
+
+    --putStrLn("z - 99:  = " ++ show( listStock cosa7 ""))
+    --putStrLn("z - 99:  = " ++ show( listStock2 cosa7 ""))
+    --putStrLn("z - 99:  = " ++ show( updateStock cosa7 "p" 2))
+    putStrLn ""
+    putStrLn ""
+    putStrLn("z - 99:  = " ++ show( listStock cosa8 ""))
+    putStrLn("z - 99:  = " ++ show( listStock2 cosa8 ""))
+    putStrLn("z - 99:  = " ++ show(    (updateStock (updateStock cosa8 "patatas fritas" 3) "patatas fritas" 2)      )  )
+    putStrLn("z - 99:  = " ++ show(    listStock(updateStock (updateStock cosa8 "patatas fritas" 3) "patatas fritas" 2) ""     )  )
+    putStrLn ""
+    putStrLn ""
+    putStrLn("z - 99:  = " ++ show( listStock cosa8 ""))
+    putStrLn("z - 99:  = " ++ show( listStock2 cosa8 ""))
+    putStrLn("z - 99:  = " ++ show(    updateStock(updateStock (updateStock cosa8 "patatas fritas" 3) "patatas fritas" 2) "p" 99     )  )
+    putStrLn("z - 99:  = " ++ show(    listStock(updateStock(updateStock (updateStock cosa8 "patatas fritas" 3) "patatas fritas" 2) "p" 99) ""     )  )
